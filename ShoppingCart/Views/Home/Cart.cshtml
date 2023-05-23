@@ -1,0 +1,55 @@
+﻿
+@{
+    ViewData["Title"] = "Cart";
+}
+@model List<ShoppingCart.Models.Dto.ItemDto>
+
+<h1>カート</h1>
+<div class="container">
+    <a href="../HOME/Items">&lt;&emsp;商品一覧へ</a>
+    @if (Model != null) {
+        int total = 0;
+        @foreach (var value in @Model) {
+            <div class="row m-1">
+                <div class="col-md-6 bg-light p-1">
+                    <img src=@value.FilePath class="w-75" />
+                </div>
+                <div class="col-md-6 bg-light text-center p-1">
+                    <h2>@value.ItemNm</h2>
+                    <h9>商品番号：@value.ItemCd</h9>
+                    <hr class="m-4" />
+                    <p>@(
+                     string.Format("{0:#,0}", value.Price)
+                     ) 円</p>
+                    <div class="row bottom-0">
+                        <form action="ChangeCart" method="get">
+                            <select name="qty">
+                                @for (int i = 1; i <= value.Amount; i++) {
+                                    @if (value.Qty == i) {
+                                        <option value=@i selected>@i</option>
+                                    } else {
+                                        <option value=@i>@i</option>
+                                    }
+                                }
+                            </select>
+                            <input type="hidden" name="itemCd" value="@value.ItemCd">
+                            <input type="submit" class="btn btn-dark text-white" value="変更" />
+                        </form>
+                        <form action="DeleteCart" method="get">
+                            <input type="hidden" name="itemCd" value="@value.ItemCd">
+                            <input type="submit" class="btn btn-link" value="削除" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+            total += value.Price * value.Qty;
+        }
+        <hr class="m-9"/>
+        <h3 class="col-md-12 d-flex justify-content-end">小計：@string.Format("{0:#,0}", total)</h3>
+        <form action="Register" method="post" class="text-center">
+            <input type="submit" class="btn-lg btn-warning text-white" value="レジへ" />
+        </form>
+    } else {
+        <h2>商品がありません</h2>
+    }
+</div>
