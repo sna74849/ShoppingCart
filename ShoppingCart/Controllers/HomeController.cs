@@ -27,6 +27,7 @@ namespace ShoppingCart.Controllers
         public IActionResult Logout() {
             TempData.Remove("customerId");
             HttpContext.Session.Clear();
+
             return View();
         }
         public IActionResult LoginCheck(string customerId, string password) {
@@ -49,6 +50,7 @@ namespace ShoppingCart.Controllers
         public IActionResult Menu() {
             return View();
         }
+
         public IActionResult Items() {
             List<ItemDto> itemDtos = new List<ItemDto>();
             using (TranMng mng = TranMng.BeginTransaction("Shopping")) {
@@ -57,7 +59,6 @@ namespace ShoppingCart.Controllers
             }
             return View(itemDtos);
         }
-
         public IActionResult AddCart(string itemCd, int qty) {
             List<ItemDto> itemDtos
                 = HttpContext.Session.GetObject<List<ItemDto>>("cart") ?? new List<ItemDto>();
@@ -78,11 +79,9 @@ namespace ShoppingCart.Controllers
             
             return RedirectToAction("Items"); 
         }
-
         public IActionResult Cart() {
             return View(HttpContext.Session.GetObject<List<ItemDto>>("cart"));
         }
-
         public IActionResult ChangeCart(string itemCd, int qty) {
             List<ItemDto> itemDtos
                 = HttpContext.Session.GetObject<List<ItemDto>>("cart");
@@ -113,6 +112,10 @@ namespace ShoppingCart.Controllers
                 destinationEntities = destinationDao.FindAll((string?)TempData["customerId"]??"");
                 ViewBag.Destinations = destinationEntities;
             }
+            // ログアウト後ヒストリーバックによりキャッシュで再表示しないように再リクエストをレスポンスに設定
+            HttpContext.Response.Headers.Add("Cache-Control", "private, no-cache, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0");
+            HttpContext.Response.Headers.Add("Pragma", "no-cache");
+            HttpContext.Response.Headers.Add("Expires", "-1");
             return View(HttpContext.Session.GetObject<List<ItemDto>>("cart"));
         }
 
