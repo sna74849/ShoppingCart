@@ -115,7 +115,7 @@ INSERT INTO m_jancode (jan_cd, item_nm) VALUES('0000000000000','カメラ');
 INSERT INTO m_jancode (jan_cd, item_nm) VALUES('0000000000001','エアコン');
 
 INSERT INTO m_salse_item(item_cd, jan_cd, price, creade_at, del_flag) VALUES('0000000000','0000000000000',10000,GETDATE(),'1');
-INSERT INTO m_salse_item(item_cd, jan_cd, price, creade_at, del_flag) VALUES('0000000000','0000000000000',9980,GETDATE(),'0');
+INSERT INTO m_salse_item(item_cd, jan_cd, price, creade_at, del_flag) VALUES('0000000002','0000000000000',9980,GETDATE(),'0');
 INSERT INTO m_salse_item(item_cd, jan_cd, price, creade_at, del_flag) VALUES('0000000001','0000000000001',50000,GETDATE(),'0');
 
 INSERT INTO m_jancode_photo(jan_cd, file_path) VALUES('0000000000000','/img/PENTAXk33PAR53709_TP_V4.jpg');
@@ -130,13 +130,14 @@ INSERT INTO t_stock(jan_cd, order_cd, branch_no, creade_at, update_at) VALUES('0
 INSERT INTO t_stock(jan_cd, order_cd, branch_no, creade_at, update_at) VALUES('0000000000000',NULL,NULL,GETDATE(),GETDATE());
 INSERT INTO t_stock(jan_cd, order_cd, branch_no, creade_at, update_at) VALUES('0000000000000',NULL,NULL,GETDATE(),GETDATE());
 INSERT INTO t_stock(jan_cd, order_cd, branch_no, creade_at, update_at) VALUES('0000000000000',NULL,NULL,GETDATE(),GETDATE());
-INSERT INTO t_stock(jan_cd, order_cd, branch_no, creade_at, update_at) VALUES('0000000000000','00000000001',1,GETDATE(),GETDATE());
 
-INSERT INTO t_stock(jan_cd, order_cd, branch_no, creade_at, update_at) VALUES('0000000000001','00000000001',2,GETDATE(),GETDATE());
 INSERT INTO t_stock(jan_cd, order_cd, branch_no, creade_at, update_at) VALUES('0000000000001',NULL,NULL,GETDATE(),GETDATE());
 
 INSERT INTO t_order(order_cd, branch_no, customer_id, item_cd, creade_at) VALUES('00000000001',1,'account1@emtech.com','0000000000',GETDATE());
 INSERT INTO t_order(order_cd, branch_no, customer_id, item_cd, creade_at) VALUES('00000000001',2,'account1@emtech.com','0000000001',GETDATE());
+
+INSERT INTO t_stock(jan_cd, order_cd, branch_no, creade_at, update_at) VALUES('0000000000000','00000000001',1,GETDATE(),GETDATE());
+INSERT INTO t_stock(jan_cd, order_cd, branch_no, creade_at, update_at) VALUES('0000000000001','00000000001',2,GETDATE(),GETDATE());
 
 INSERT INTO m_destination(customer_id, name, postcode, address, phone, email ) VALUES('account1@emtech.com', 'エンベックス', '102-0083','東京都千代田区麹町5丁目3番地 麹町中田ビル5F','03-6384-1435','account1@emtech.com');
 INSERT INTO m_destination(customer_id, name, postcode, address, phone, email ) VALUES('account1@emtech.com', 'エンベックス', '510-0086','三重県四日市市諏訪栄町4-10 アピカビル4F','059-340-8140','account1@emtech.com');
