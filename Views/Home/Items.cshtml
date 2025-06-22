@@ -1,0 +1,38 @@
+﻿
+@{
+    ViewData["Title"] = "Items";
+}
+@model List<ShoppingCart.Models.Dto.ItemDto>;
+
+<h1>商品一覧</h1>
+<div class="container">
+    @foreach (var value in @Model) {
+        <div class="row m-1">
+            <div class="col-md-6 bg-light p-1">
+                <img src=@value.FilePath class="w-100" />
+            </div>
+            <div class="col-md-6 bg-light text-center p-1">
+                <h2>@value.ItemNm</h2>
+                <h9>商品番号：@value.ItemCd</h9>
+                <hr class="m-4"/>
+                <p>@(string.Format("{0:#,0}",value.Price)) 円</p>
+                <div class="row bottom-0">
+                    <form action="AddCart" method="get">
+                        @if(value.Amount == 0) {
+                            <span>在庫なし</span>
+                        }else{
+                            <select name="qty">
+                                @for (int i = 1; i <= value.Amount; i++) {
+                                    <option value=@i>@i</option>
+                                }
+                            </select>
+                            <input type="hidden" name="itemCd" value="@value.ItemCd">
+                            <input type="submit" class="btn btn-dark text-white" value="カートに入れる"/>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
