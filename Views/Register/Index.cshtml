@@ -1,0 +1,86 @@
+﻿@{
+    ViewData["Title"] = "Register";
+    int total = 0;
+}
+@model List<ShoppingCart.Models.Dto.CartItemDto>
+@using ShoppingCart.Models.Entity;
+<style>
+    /* scheduledDelivery 内の日付入力を初期状態で無効風に */
+    .scheduledDelivery input[type="date"] {
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    /* チェックボックスがチェックされたら日付入力を有効風に */
+    .scheduledDelivery input[type="checkbox"]:checked ~ input[type="date"] {
+        pointer-events: auto;
+        opacity: 1;
+    }
+</style>
+<h1>レジ</h1>
+<div class="container">
+    <a href="../Items">&lt;&emsp;商品一覧へ</a>
+    <form id="orderForm" method="post" class="text-center">
+        @for (int i = 0; i < Model.Count; i++)
+        {
+            var value = Model[i];
+            <div class="row m-1">
+                <div class="col-md-6 bg-light p-1">
+                    <img src="@value.item.FilePath" class="w-50" />
+                </div>
+                <div class="col-md-6 bg-light text-center p-1">
+                    <h2>@value.item.ItemNm</h2>
+                    <h9>商品番号：@value.item.JanCd</h9>
+                    <hr class="m-4" />
+                    <div class="row">
+                        <div class="col-md-2">
+                            @(string.Format("{0:#,0}", value.item.Price)) 円
+                        </div>
+                        <div class="col-md-4">
+                            &ensp;×&ensp;@value.InCartQty&ensp;＝&ensp;@(string.Format("{0:#,0}", value.InCartQty * value.item.Price)) 円
+                        </div>
+                        <p class="scheduledDelivery m-2">
+                            <input type="hidden" name="orderScheduledDeliveriesDto[@i].ItemCd" value="@value.item.JanCd" />
+                            <input type="checkbox" name="orderScheduledDeliveriesDto[@i].ScheduledDeliveryIs" value="true" />
+                            &ensp;配送日を指定する&ensp;
+                            <input type="date"
+                                   name="orderScheduledDeliveriesDto[@i].ScheduledDeliveryAt"
+                                   value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")"
+                                   min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" />
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+
+    <hr class="m-9" />
+    <h3 class="col-md-12 d-flex justify-content-end">小計：@string.Format("{0:#,0}", total) 円</h3>
+
+    <h9>お届け先</h9>
+        @foreach (DestinationEntity entity in ViewBag.Destinations)
+        {
+            <div class="form-check text-start bg-light rounded m-3">
+                <input class="form-check-input" type="radio" name="destinationNo" id="dest_@entity.DestinationNo" value="@entity.DestinationNo" @(entity == ViewBag.Destinations[0] ? "checked" : "")>
+                <label class="form-check-label" for="dest_@entity.DestinationNo">
+                    〒@entity.Postcode<br>@entity.Address
+                </label>
+            </div>
+        }
+        <a href="javascript:void(0)" id="submitOrder" class="btn-lg btn-warning text-white text-decoration-none mt-3">注文する</a>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("submitOrder").addEventListener("click", function () {
+            const form = document.getElementById("orderForm");
+            const dest = form.querySelector('input[name="destinationNo"]:checked');
+            if (!dest) {
+                alert("お届け先を選択してください。");
+                return;
+            }
+            form.action = `/register/orders${dest.value}`;
+            form.submit();
+        });
+    </script>
+}

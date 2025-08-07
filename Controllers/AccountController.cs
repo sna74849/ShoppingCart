@@ -1,7 +1,7 @@
-﻿using DynamicDll.Db;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using ShoppingCart.Models;
 using ShoppingCart.Models.Dao;
-using ShoppingCart.Models.Entity;
+
 
 namespace ShoppingCart.Controllers
 {
@@ -20,31 +20,41 @@ namespace ShoppingCart.Controllers
             TempData.Remove("customerId");
             HttpContext.Session.Clear();
 
+
             return View();
         }
 
         public IActionResult LoginCheck(string customerId, string password)
         {
-            if (string.IsNullOrEmpty(customerId) || string.IsNullOrEmpty(password))
+            try
             {
-                ViewData["errorMessage"] = "IDとパスワードを入力してください。";
-                return View("Login");
-            }
-            using (TranMng mng = TranMng.BeginTransaction("Shopping"))
-            {
-                CustomerDao customerDao = new CustomerDao();
-                CustomerEntity customerEntity = customerDao.Find(customerId, password);
-                if (customerEntity == null)
+                if (string.IsNullOrEmpty(customerId) || string.IsNullOrEmpty(password))
                 {
-                    ViewData["errorMessage"] = "IDかパスワードが間違っています。";
+                    ViewData["errorMessage"] = "IDとパスワードを入力してください。";
                     return View("Login");
                 }
-                else
+                using (new ConnectionManager("shopping"))
                 {
-                    TempData.Add("customerId", customerEntity.CustomerId);
+                    var customerEty = new CustomerDao().Find(customerId, password);
+                    if (customerEty == null)
+                    {
+                        ViewData["errorMessage"] = "IDかパスワードが間違っています。";
+                        return View("Login");
+                    }
+                    else
+                    {
+                        TempData.Add("customerId", customerEty.CustomerId);
+                    }
                 }
+                return View("../Home/Index");
             }
-            return View("../Home/Index");
+            catch (Exception e)
+            {
+                ViewData["stackTrace"] = e.StackTrace;
+                ViewData["message"] = e.Message;
+
+                return View("Error");
+            }
         }
     }
 }
