@@ -1,7 +1,10 @@
 ﻿@{
     // 一時データを保持する
     TempData.Keep("customerId");
+<<<<<<< HEAD
     TempData.Keep("count");
+=======
+>>>>>>> 91decb47f3a5019fbd405ce4ab88d86b6396da4d
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -31,6 +34,7 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+<<<<<<< HEAD
                     <a href="../cart" class="btn btn-outline-warning text-black m-1">カート
                         @if ((int)(TempData["count"] ?? 0) > 0)
                         {
@@ -42,6 +46,13 @@
                         <a href="../account/Login" class="btn btn-primary text-white">ログイン</a>
                     } else {
                         <a href="../account/Logout" class="btn btn-primary text-white">ログアウト</a>
+=======
+                    <a href="../Home/Cart" class="btn btn-outline-warning text-black m-1">カート</a>
+                    @if (string.IsNullOrEmpty((string?)TempData["customerId"])) {
+                        <a href="../Account/Login" class="btn btn-primary text-white">ログイン</a>
+                    } else {
+                        <a href="../Account/Logout" class="btn btn-primary text-white">ログアウト</a>
+>>>>>>> 91decb47f3a5019fbd405ce4ab88d86b6396da4d
                     }
                 </div>
             </div>

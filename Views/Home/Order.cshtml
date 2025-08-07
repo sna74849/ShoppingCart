@@ -1,0 +1,32 @@
+﻿
+@{
+    ViewData["Title"] = "Order";
+    int total = 0;
+}
+@model List<ShoppingCart.Models.Dto.OrderHistoryDto>
+<h1>Order</h1>
+<div class="container">
+    <a href="../HOME/Items">&lt;&emsp;商品一覧へ</a>
+    @foreach (var value in @Model) {
+        <div class="row m-1">
+            <div class="col-md-6 bg-light text-center p-1">
+                <h2>@value.ItemNm</h2>
+                <h9>商品番号：@value.ItemCd</h9>
+                <hr class="m-4" />
+                <div class="row">
+                    <div class="col-md-2">
+                        @(string.Format("{0:#,0}", value.Price)) 円
+                    </div>
+                    <div class="col-md-4">
+                        &ensp;×&ensp;@value.Qty&ensp;＝&ensp;@(string.Format("{0:#,0}", value.Qty * value.Price)) 円
+                    </div>
+                </div>
+            </div>
+        </div>
+        total += value.Price * value.Qty;
+    }
+    <hr class="m-9" />
+    <h3 class="col-md-12 d-flex justify-content-end">小計：@string.Format("{0:#,0}", total)</h3>
+    <h9>お届け先</h9>
+
+</div>
