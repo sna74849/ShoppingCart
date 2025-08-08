@@ -160,7 +160,7 @@ CREATE TABLE t_order_detail (
 );
 GO
 
--- 注文商品ビュー
+-- 注文商品明細ビュー
 CREATE VIEW v_order_item_sales AS
 SELECT
     d.order_cd,
@@ -191,6 +191,7 @@ GROUP BY
     d.order_cd, d.sales_cd, d.scheduled_delivery_at, d.shipped_at, d.cancelled_at, si.jan_cd, si.price, si.item_nm, si.file_nm
 GO
 
+-- 注文ビュー
 CREATE VIEW v_order AS
 SELECT 
     h.order_cd,
