@@ -1,5 +1,15 @@
 # Visual Studio cache folder
 .vs/
 # Build results
-[Bb]in/
-[Oo]bj/
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+
+# ASP.NET Core
+wwwroot/dist/
+
+# Others
+*.log
