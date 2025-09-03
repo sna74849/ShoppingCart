@@ -1,15 +1,16 @@
-﻿using ShoppingCart.Models.Dto;
-
-namespace ShoppingCart.Models.Dao
+﻿using DBManager;
+using DBManager.Framework;
+using ShoppingCart.Models.Dtos;
+namespace ShoppingCart.Models.Daos
 {
-    public class ItemSalesStockDao : IBaseDtoDao<ItemSalesStockDto>
+    public class ItemSalesStockDao : BaseDtoDao<ItemSalesStockDto>
     {
 
         /// <summary>
         /// JANコードに対応する販売商品の在庫データを取得する
         /// </summary>
         /// <param name="pkeys">JANコード</param>
-        public ItemSalesStockDto? Find(params object[] pkeys) {
+        protected override ItemSalesStockDto? Fetch(params object[] pkeys) {
             string query = @"
                             SELECT 
                                 jan_cd,
@@ -34,11 +35,11 @@ namespace ShoppingCart.Models.Dao
                     {
                         return new ItemSalesStockDto
                         {
-                            JanCd = reader.GetString("jan_cd"),
-                            ItemNm = reader.GetString("item_nm"),
-                            FileNm = reader.GetString("file_nm"),
-                            Price = reader.GetInt("price"),
-                            Qty = reader.GetInt("qty"),
+                            JanCd = reader.GetNonNullString("jan_cd"),
+                            ItemNm = reader.GetNonNullString("item_nm"),
+                            FileNm = reader.GetNonNullString("file_nm"),
+                            Price = reader.GetNonNullInt("price"),
+                            Qty = reader.GetNonNullInt("qty"),
                         };
                     }
                     else
@@ -52,7 +53,7 @@ namespace ShoppingCart.Models.Dao
         /// <summary>
         /// 在庫数込み商品販売リストを取得
         /// </summary>
-        public List<ItemSalesStockDto> Find() {
+        protected override List<ItemSalesStockDto> Find() {
             string query = @"
                             SELECT 
                                 jan_cd,
@@ -70,16 +71,16 @@ namespace ShoppingCart.Models.Dao
             {
                 using var reader = cmd.ExecuteReader();
                 {
-                    List<ItemSalesStockDto> itemSalesStocksDto = new();
+                    List<ItemSalesStockDto> itemSalesStocksDto = [];
                     while (reader.Read())
                     {
                         itemSalesStocksDto.Add(new ItemSalesStockDto
                         {
-                            JanCd = reader.GetString("jan_cd"),
-                            ItemNm = reader.GetString("item_nm"),
-                            FileNm = reader.GetString("file_nm"),
-                            Price = reader.GetInt("price"),
-                            Qty = reader.GetInt("qty"),
+                            JanCd = reader.GetNonNullString("jan_cd"),
+                            ItemNm = reader.GetNonNullString("item_nm"),
+                            FileNm = reader.GetNonNullString("file_nm"),
+                            Price = reader.GetNonNullInt("price"),
+                            Qty = reader.GetNonNullInt("qty"),
                         });
                     }
                     return itemSalesStocksDto;
@@ -87,7 +88,7 @@ namespace ShoppingCart.Models.Dao
             }
         }
 
-        public List<ItemSalesStockDto> FindBy(params object[] pkeys)
+        protected override List<ItemSalesStockDto> Find(params object[] pkeys)
         {
             throw new NotImplementedException();
         }

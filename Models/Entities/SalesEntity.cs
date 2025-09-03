@@ -1,11 +1,13 @@
-﻿
-namespace ShoppingCart.Models.Entity
+﻿namespace ShoppingCart.Models.Entities
 {
     /// <summary>
     /// 
     /// 商品情報を表すエンティティクラス。
     /// 
     /// このクラスは、商品コード、JANコード、価格、登録日時、および削除フラグを含む。
+    /// <para>
+    /// データベーステーブル: <c>m_sales</c>
+    /// </para>
     /// </summary>
     public class SalesEntity
     {

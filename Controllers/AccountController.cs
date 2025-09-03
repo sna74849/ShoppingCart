@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using DBManager.Framework;
 using ShoppingCart.Models;
-using ShoppingCart.Models.Dao;
-
+using ShoppingCart.Models.Entities;
+using ShoppingCart.Models.Daos;
 
 namespace ShoppingCart.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController(DatabaseService dbservice) : Controller
     {
         public IActionResult Index()
         {
@@ -19,8 +20,6 @@ namespace ShoppingCart.Controllers
         {
             TempData.Remove("customerId");
             HttpContext.Session.Clear();
-
-
             return View();
         }
 
@@ -33,26 +32,26 @@ namespace ShoppingCart.Controllers
                     ViewData["errorMessage"] = "IDとパスワードを入力してください。";
                     return View("Login");
                 }
-                using (new ConnectionManager("shopping"))
+                var customerEty = dbservice.Read(action:() =>
+                    {
+                        IReadableDao<CustomerEntity> customerDao = new CustomerDao();
+                        return customerDao.Fetch(customerId, password);
+                    }
+                );
+                if (customerEty == null)
                 {
-                    var customerEty = new CustomerDao().Find(customerId, password);
-                    if (customerEty == null)
-                    {
-                        ViewData["errorMessage"] = "IDかパスワードが間違っています。";
-                        return View("Login");
-                    }
-                    else
-                    {
-                        TempData.Add("customerId", customerEty.CustomerId);
-                    }
+                    ViewData["errorMessage"] = "IDかパスワードが間違っています。";
+                    return View("Login");
                 }
+                else
+                {
+                    TempData.Add("customerId", customerEty.CustomerId);
+                }
+                
                 return View("../Home/Index");
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                ViewData["stackTrace"] = e.StackTrace;
-                ViewData["message"] = e.Message;
-
                 return View("Error");
             }
         }

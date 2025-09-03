@@ -1,6 +1,6 @@
-﻿using ShoppingCart.Models.Entity;
+﻿using ShoppingCart.Models.Entities;
 
-namespace ShoppingCart.Models.Dto
+namespace ShoppingCart.Models.Dtos
 {
     /// <summary>
     /// 注文内の商品の情報を表し、商品コード、配送予定日、数量などの詳細を含みます。

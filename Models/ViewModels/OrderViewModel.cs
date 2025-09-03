@@ -1,9 +1,12 @@
-﻿using ShoppingCart.Models.Entity;
-using System.Collections.Generic;
+﻿using ShoppingCart.Models.Dtos;
+using ShoppingCart.Models.Entities;
 
-namespace ShoppingCart.Models.Dto
+namespace ShoppingCart.Models.ViewModels
 {
-    public class OrderDto {
+    /// <summary>
+    /// 注文情報をまとめたViewModel。
+    /// </summary>
+    public class OrderViewModel {
 
         /// <summary>
         /// 注文コード。システム内で一意の注文を識別するためのコードです。

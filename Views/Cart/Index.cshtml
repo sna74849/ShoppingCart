@@ -1,71 +1,44 @@
-﻿
+﻿@using ShoppingCart.Models.Dtos
+@using ShoppingCart.Models.ViewModels
 @{
     ViewData["Title"] = "Cart";
 }
-@model List<ShoppingCart.Models.Dto.CartItemDto>
+@model List<CartItemViewModel>
 
 <h1>カート </h1>
-<div class="container" id="container">
+<div class="container">
     <a href="../items">&lt;&emsp;商品一覧へ</a>
-    @if (Model != null) {
-        int total = 0;
-        @foreach (var value in @Model) {
-            <div class="row m-1">
-                <div class="col-md-6 bg-light p-1">
-                    <img src=@value.item.FilePath class="w-75" />
-                </div>
-                <div class="col-md-6 bg-light text-center p-1">
-                    <h2>@value.item.ItemNm</h2>
-                    <h9>JANコード：@value.item.JanCd</h9>
-                    <hr class="m-4" />
-                    <p>@(
-                     string.Format("{0:#,0}", value.item.Price)
-                     ) 円</p>
-                    <div class="row bottom-0">
-                        <form class="cart-form">
-                            <select name="qty" class="qty-select">
-                                @for (int i = 1; i <= value.item.Qty; i++)
-                                {
-                                    if (value.InCartQty == i)
-                                    {
-                                        <option value="@i" selected>@i</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@i">@i</option>
-                                    }
-                                }
-                            </select>
-                            <input type="hidden" name="janCd" value="@value.item.JanCd" class="jan-cd-input">
-                            <button type="button" class="btn btn-link delete-btn">削除</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            total += value.item.Price * value.InCartQty;
-        }
-        <hr class="m-9"/>
-        <h3 class="col-md-12 d-flex justify-content-end">小計：@string.Format("{0:#,0}", total)</h3>
-        <div class="text-center">
-            <a href="../register" class="btn-lg btn-warning text-white text-decoration-none">レジへ</a>
-        </div>
-    } else {
-        <h2>商品がありません</h2>
-    }
+    <div id="cart-container" class="mt-3">
+        <!-- カートの内容はJSで動的に生成 -->
+    </div>
+    <div class="text-center">
+        <a href="../register" class="btn-lg btn-warning text-white text-decoration-none">レジへ</a>
+    </div>
 </div>
-<!--HTMLではGETとPOSTしか選べないためJSの非同期処理で対応-->
 @section Scripts {
     <script>
+        // サーバー側の Model を JS に渡す
+        const initialCartData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
+
+        // ページロード時に renderCart を実行
+        document.addEventListener("DOMContentLoaded", () => {
+            renderCart(initialCartData);
+        });
+
+
+        // HTMLではGETとPOSTしか選べないためJSの非同期処理で対応
         document.body.addEventListener('click', async (event) => {
             if (event.target.matches('.delete-btn')) {
                 fetchAndResponse(event);
             }
         });
+
         document.body.addEventListener('change', async (event) => {
             if (event.target.matches('.qty-select')) {
                 fetchAndResponse(event);
             }
         });
+
         async function fetchAndResponse(event) {
             const target = event.target;
             // buttonから一番近い.cart-formを探す
@@ -92,34 +65,79 @@
                         method: 'DELETE'
                     });
                 }
+
                 if (response.ok) {
-                    /*
-                        リロードだと再リクエストされ、負荷がかかるためやらない。
-                        window.location.reload();
-                    */
-                    /*
-                        PUTとDELETEは非同期通信であるためサーバ側でレスポンスを返してもビューが再描画されない。
-                        そのためJS側で受け取ったレスポンスから再描画する。
-                    */
-                    // サーバーから返されたHTMLをテキストとして取得
-                    const htmlText = await response.text();
-                    // 取得したHTML文字列を仮のDOMに変換
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(htmlText, 'text/html');
-
-                    // 新しいcontainerの中身を取得
-                    const newPageHtml = doc.body.innerHTML;
-
-                    // 現在のドキュメントのHTMLを新しいものに置き換え
-                    document.body.innerHTML = newPageHtml;
-
+                    const cartItemDtoList = await response.json();
+                    console.log(cartItemDtoList);
+                    renderCart(cartItemDtoList);
                 } else {
-                    alert(response.status+":"+response.JSON);
+                    alert(response.status + ": カート操作で問題が発生しました。在庫が既にない可能性があります。再度操作を試してください。");
                 }
             } catch (error) {
                 console.error('更新エラー:', error);
                 alert('更新エラーが発生しました。');
             }
-        };
+        }
+
+        function renderCart(cartItemDtoList) {
+            const cartContainer = document.querySelector("#cart-container");
+            cartContainer.innerHTML = "";
+            if (!cartItemDtoList || cartItemDtoList.length === 0) {
+                cartContainer.innerHTML = "<p>カートは空です。</p>";
+                return;
+            }
+
+            let total = 0;
+
+            cartItemDtoList.forEach(itemDto => {
+                const item = itemDto.Item;
+                const qty = itemDto.InCartQty;
+                const rowDiv = document.createElement("div");
+                rowDiv.classList.add("row", "m-1");
+
+                const leftDiv = document.createElement("div");
+                leftDiv.classList.add("col-md-6", "bg-light", "p-1");
+                leftDiv.innerHTML = `<img src="${item.FilePath}" class="w-75" />`;
+
+                const rightDiv = document.createElement("div");
+                rightDiv.classList.add("col-md-6", "bg-light", "text-center", "p-1");
+
+                const formHtml = document.createElement("div");
+                formHtml.innerHTML = `
+                    <h2>${item.ItemNm}</h2>
+                    <h9>JANコード：${item.JanCd}</h9>
+                    <hr class="m-4" />
+                    <p>${Number(item.Price).toLocaleString()} 円</p>
+                    <div class="row bottom-0">
+                        <form class="cart-form">
+                            <select name="qty" class="qty-select"></select>
+                            <input type="hidden" name="janCd" value="${item.JanCd}" class="jan-cd-input">
+                            <button type="button" class="btn btn-link delete-btn">削除</button>
+                        </form>
+                    </div>
+                `;
+                rightDiv.appendChild(formHtml);
+
+                const select = rightDiv.querySelector(".qty-select");
+                for (let i = 1; i <= item.Qty; i++) {
+                    const option = document.createElement("option");
+                    option.value = i;
+                    option.text = i;
+                    if (i === qty) option.selected = true;
+                    select.appendChild(option);
+                }
+
+                rowDiv.appendChild(leftDiv);
+                rowDiv.appendChild(rightDiv);
+                cartContainer.appendChild(rowDiv);
+
+                total += Number(item.Price) * qty;
+            });
+
+            const totalDiv = document.createElement("h3");
+            totalDiv.classList.add("col-md-12", "d-flex", "justify-content-end");
+            totalDiv.innerHTML = `小計：${total.toLocaleString()}`;
+            cartContainer.appendChild(totalDiv);
+        }
     </script>
 }

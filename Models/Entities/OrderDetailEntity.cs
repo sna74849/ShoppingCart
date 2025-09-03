@@ -1,8 +1,11 @@
-﻿namespace ShoppingCart.Models.Entity
+﻿namespace ShoppingCart.Models.Entities
 {
     /// <summary>
     /// 注文明細情報を表すエンティティクラス。  
     /// 注文に含まれる各商品の詳細情報を保持します。
+    /// <para>
+    /// データベーステーブル: <c>t_order_detail</c>
+    /// </para>
     /// </summary>
     public class OrderDetailEntity
     {

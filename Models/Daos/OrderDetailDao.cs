@@ -1,25 +1,27 @@
-﻿using ShoppingCart.Models.Entity;
+﻿using DBManager;
+using DBManager.Framework;
+using ShoppingCart.Models.Entities;
 
-namespace ShoppingCart.Models.Dao
+namespace ShoppingCart.Models.Daos
 {
-    public class OrderDetailDao : IBaseEntityDao<OrderDetailEntity>
+    public class OrderDetailDao : BaseEntityDao<OrderDetailEntity>
     {
-        public OrderDetailEntity Find(params object[] pkeys)
+        protected override OrderDetailEntity Fetch(params object[] pkeys)
         {
             throw new NotImplementedException();
         }
 
-        public List<OrderDetailEntity> Find()
+        protected override List<OrderDetailEntity> Find()
         {
             throw new NotImplementedException();
         }
 
-        public List<OrderDetailEntity> FindBy(params object[] pkeys)
+        protected override List<OrderDetailEntity> Find(params object[] pkeys)
         {
             throw new NotImplementedException();
         }
 
-        public int Insert(OrderDetailEntity entity)
+        protected override int Insert(OrderDetailEntity entity)
         {
             string query = @"
                             INSERT INTO t_order_detail 
@@ -48,11 +50,17 @@ namespace ShoppingCart.Models.Dao
                 return cmd.ExecuteNonQuery();
             }
         }
-        public int Update(OrderDetailEntity entity)
+
+        protected override int Update(OrderDetailEntity t)
         {
             throw new NotImplementedException();
         }
-        public int Delete(OrderDetailEntity entity)
+        protected override int Delete(params object[] pkeys)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override int Patch(object value, params object[] pkeys)
         {
             throw new NotImplementedException();
         }

@@ -2,8 +2,9 @@
     ViewData["Title"] = "Register";
     int total = 0;
 }
-@model List<ShoppingCart.Models.Dto.CartItemDto>
-@using ShoppingCart.Models.Entity;
+@model List<CartItemViewModel>
+@using ShoppingCart.Models.Dtos
+@using ShoppingCart.Models.ViewModels
 <style>
     /* scheduledDelivery 内の日付入力を初期状態で無効風に */
     .scheduledDelivery input[type="date"] {
@@ -26,31 +27,31 @@
             var value = Model[i];
             <div class="row m-1">
                 <div class="col-md-6 bg-light p-1">
-                    <img src="@value.item.FilePath" class="w-50" />
+                    <img src="@value.Item.FilePath" class="w-50" />
                 </div>
                 <div class="col-md-6 bg-light text-center p-1">
-                    <h2>@value.item.ItemNm</h2>
-                    <h9>JANコード：@value.item.JanCd</h9>
+                    <h2>@value.Item.ItemNm</h2>
+                    <h9>JANコード：@value.Item.JanCd</h9>
                     <hr class="m-4" />
                     <div class="row">
                         <div class="col-md-2">
                             @(  /* 丸括弧なので表示 */
-                                string.Format("{0:#,0}", value.item.Price)
+                                string.Format("{0:#,0}", value.Item.Price)
                               ) 円
                         </div>
                         <div class="col-md-4">
-                            &ensp;×&ensp;@value.InCartQty&ensp;＝&ensp;@(string.Format("{0:#,0}", value.InCartQty * value.item.Price)) 円
+                            &ensp;×&ensp;@value.InCartQty&ensp;＝&ensp;@(string.Format("{0:#,0}", value.InCartQty * value.Item.Price)) 円
                             @{
                                 /* 波括弧なので非表示 */
-                                total += value.item.Price * value.InCartQty;
+                                total += value.Item.Price * value.InCartQty;
                             }
                         </div>
                         <p class="scheduledDelivery m-2">
-                            <input type="hidden" name="orderScheduledDeliveriesDto[@i].ItemCd" value="@value.item.JanCd" />
-                            <input type="checkbox" name="orderScheduledDeliveriesDto[@i].ScheduledDeliveryIs" value="true" />
+                            <input type="hidden" name="orderScheduledDeliveryViewModels[@i].ItemCd" value="@value.Item.JanCd" />
+                            <input type="checkbox" name="orderScheduledDeliveryViewModels[@i].ScheduledDeliveryIs" value="true" />
                             &ensp;配送日を指定する&ensp;
                             <input type="date"
-                                   name="orderScheduledDeliveriesDto[@i].ScheduledDeliveryAt"
+                                   name="orderScheduledDeliveryViewModels[@i].ScheduledDeliveryAt"
                                    value="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")"
                                    min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" />
                         </p>

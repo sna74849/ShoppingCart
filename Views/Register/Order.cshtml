@@ -1,9 +1,10 @@
-﻿
+﻿@using ShoppingCart.Models.ViewModels
+
 @{
     ViewData["Title"] = "Order";
     int total = 0;
 }
-@model ShoppingCart.Models.Dto.OrderDto
+@model OrderViewModel
 <h1>注文確定</h1>
 <div class="container">
     <a href="../Items">&lt;&emsp;商品一覧へ</a>

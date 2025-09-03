@@ -1,62 +1,70 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DBManager.Framework;
+using Microsoft.AspNetCore.Mvc;
 using ShoppingCart.Models;
-using ShoppingCart.Models.Dao;
-using ShoppingCart.Models.Dto;
+using ShoppingCart.Models.Daos;
+using ShoppingCart.Models.Dtos;
+using ShoppingCart.Models.Exceptions;
+using ShoppingCart.Models.ViewModels;
 
 namespace ShoppingCart.Controllers
 {
-    public class CartController : Controller
+    public class CartController(DatabaseService dbService) : Controller
     {
+
         [HttpGet("/cart")]
         public IActionResult Index()
         {
             try
             {
-                return View(HttpContext.Session.GetObject<List<CartItemDto>>("cart"));
+                return View(HttpContext.Session.GetObject<List<CartItemViewModel>>("cart"));
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                ViewData["stackTrace"] = e.StackTrace;
-                ViewData["message"] = e.Message;
-
                 return View("Error");
             }
         }
         [HttpPost("/cart/items")]
-        public IActionResult Create(string janCd, int qty)
+        public IActionResult Create([FromForm] string janCd, [FromForm] int qty)
         {
+            IReadableDao<ItemSalesStockDto> dao = new ItemSalesStockDao();
             try
             {
                 var cartItemDtoList
-                        = HttpContext.Session.GetObject<List<CartItemDto>>("cart") ?? new List<CartItemDto>();
-                using (new ConnectionManager("Shopping"))
+                        = HttpContext.Session.GetObject<List<CartItemViewModel>>("cart") ?? [];
+                var cartItemDto = new CartItemViewModel
                 {
-
-                    var cartItemDto = new CartItemDto();
-                    cartItemDto.item = new ItemSalesStockDao().Find(janCd) ?? throw new Exception("No stock");
-
-                    if (cartItemDtoList.Find(it => it.item.JanCd == janCd) == null)
+                    Item = dbService.Read(action:() =>
                     {
-                        cartItemDto.InCartQty = qty;
-                        cartItemDtoList.Add(cartItemDto);
-                    }
-                    else
-                    {
-                        cartItemDtoList.Find(it => it.item.JanCd == janCd)!.item.Qty = qty;
-                    }
-                    
-                    HttpContext.Session.SetObject<List<CartItemDto>>("cart", cartItemDtoList);
-                    
-                    TempData["count"] = cartItemDtoList.Count;
-
-                    return View("../Items/Index", new ItemSalesStockDao().Find());
+                        return dao.Fetch(janCd);
+                    }) ?? throw new StockException("在庫がありません。")
+                };
+                if (cartItemDtoList.Find(it => it.Item.JanCd == janCd) == null)
+                {
+                    cartItemDto.InCartQty = qty;
+                    cartItemDtoList.Add(cartItemDto);
                 }
-            }
-            catch (Exception e)
-            {
-                ViewData["stackTrace"] = e.StackTrace;
-                ViewData["message"] = e.Message;
+                else
+                {
+                    cartItemDtoList.Find(it => it.Item.JanCd == janCd)!.Item.Qty = qty;
+                }
+                    
+                HttpContext.Session.SetObject<List<CartItemViewModel>>("cart", cartItemDtoList);
+                    
+                TempData["count"] = cartItemDtoList.Count;
 
+                return View("../Items/Index", dbService!.Read(action:() => {
+                    return dao.Find();
+                }));
+            }
+            catch (StockException e)
+            {
+                ViewData["message"] = e.Message;
+                return View("../Items/Index", dbService!.Read(action:() => {
+                    return dao.Find();
+                }));
+            }
+            catch (Exception)
+            {
                 return View("Error");
             }
         }
@@ -66,22 +74,18 @@ namespace ShoppingCart.Controllers
             try
             {
                 var cartItemDtoList
-                    = HttpContext.Session.GetObject<List<CartItemDto>>("cart") ?? throw new Exception();
+                    = HttpContext.Session.GetObject<List<CartItemViewModel>>("cart") ?? throw new Exception();
 
-                cartItemDtoList.Find(it => it.item.JanCd == janCd)!.InCartQty = qty;
+                cartItemDtoList.Find(it => it.Item.JanCd == janCd)!.InCartQty = qty;
 
-                HttpContext.Session.SetObject<List<CartItemDto>>("cart", cartItemDtoList);
+                HttpContext.Session.SetObject<List<CartItemViewModel>>("cart", cartItemDtoList);
 
                 TempData["count"] = cartItemDtoList.Count;
-
-                return View("Index", cartItemDtoList);
+                return Ok(cartItemDtoList);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                ViewData["stackTrace"] = e.StackTrace;
-                ViewData["message"] = e.Message;
-
-                return View("Error");
+                return BadRequest();
             }
         }
         [HttpDelete("/cart/items/{janCd}")]
@@ -90,22 +94,18 @@ namespace ShoppingCart.Controllers
             try
             {
                 var cartItemDtoList
-                    = HttpContext.Session.GetObject<List<CartItemDto>>("cart") ?? throw new Exception();
+                    = HttpContext.Session.GetObject<List<CartItemViewModel>>("cart") ?? throw new Exception();
 
-                cartItemDtoList.Remove(cartItemDtoList.Find(it => it.item.JanCd == janCd) ?? throw new Exception());
+                cartItemDtoList.Remove(cartItemDtoList.Find(it => it.Item.JanCd == janCd) ?? throw new Exception());
 
-                HttpContext.Session.SetObject<List<CartItemDto>>("cart", cartItemDtoList);
+                HttpContext.Session.SetObject<List<CartItemViewModel>>("cart", cartItemDtoList);
 
                 TempData["count"] = cartItemDtoList.Count;
-
-                return View("Index", cartItemDtoList);
+                return Ok(cartItemDtoList);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                ViewData["stackTrace"] = e.StackTrace;
-                ViewData["message"] = e.Message;
-
-                return View("Error");
+                return BadRequest();
             }
         }
     }

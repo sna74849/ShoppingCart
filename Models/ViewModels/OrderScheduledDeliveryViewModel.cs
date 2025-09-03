@@ -1,9 +1,9 @@
-﻿namespace ShoppingCart.Models.Dto
+﻿namespace ShoppingCart.Models.ViewModels
 {
     /// <summary>
-    /// 商品ごとの配送希望日を指定するためのデータ転送オブジェクト（DTO）。
+    /// 商品ごとの配送希望日を指定するためのビューモデル（DTO）。
     /// </summary>
-    public class OrderScheduledDeliveryDto
+    public class OrderScheduledDeliveryViewModel
     {
         /// <summary>
         /// 商品コード（JANコードなど）を表します。

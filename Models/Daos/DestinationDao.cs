@@ -1,16 +1,15 @@
-﻿using ShoppingCart.Models.Entity;
+﻿using DBManager;
+using DBManager.Framework;
+using ShoppingCart.Models.Entities;
 
-namespace ShoppingCart.Models.Dao {
-    public class DestinationDao : IBaseEntityDao<DestinationEntity> {
-        public DestinationEntity Find(params object[] pkeys) 
+namespace ShoppingCart.Models.Daos {
+    public class DestinationDao : BaseEntityDao<DestinationEntity>
+    {
+        protected override List<DestinationEntity> Find()
         {
             throw new NotImplementedException();
         }
-        public List<DestinationEntity> Find()
-        {
-            throw new NotImplementedException();
-        }
-        public List<DestinationEntity> FindBy(params object[] pkeys)
+        protected override List<DestinationEntity> Find(params object[] pkeys)
         {
             string query = @"
                             SELECT 
@@ -37,11 +36,11 @@ namespace ShoppingCart.Models.Dao {
                     {
                         destinationEntities.Add(new DestinationEntity
                         {
-                            DestinationNo = reader.GetInt("destination_no"),
-                            Name = reader.GetString("name"),
-                            Postcode = reader.GetString("postcode"),
-                            Address = reader.GetString("address"),
-                            Phone = reader.GetString("phone"),
+                            DestinationNo = reader.GetNonNullInt("destination_no"),
+                            Name = reader.GetNonNullString("name"),
+                            Postcode = reader.GetNonNullString("postcode"),
+                            Address = reader.GetNonNullString("address"),
+                            Phone = reader.GetNonNullString("phone"),
                         });
                     }
                     return destinationEntities;
@@ -49,15 +48,25 @@ namespace ShoppingCart.Models.Dao {
             }
         }
 
-        public int Insert(DestinationEntity entity)
+        protected override int Insert(DestinationEntity t)
         {
             throw new NotImplementedException();
         }
-        public int Update(DestinationEntity entity)
+        protected override int Update(DestinationEntity t)
         {
             throw new NotImplementedException();
         }
-        public int Delete(DestinationEntity entity)
+        protected override int Delete(params object[] pkeys)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override int Patch(object value, params object[] pkeys)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override DestinationEntity? Fetch(params object[] pkeys)
         {
             throw new NotImplementedException();
         }

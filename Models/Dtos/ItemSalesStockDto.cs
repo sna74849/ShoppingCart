@@ -1,7 +1,7 @@
-﻿namespace ShoppingCart.Models.Dto
+﻿namespace ShoppingCart.Models.Dtos
 {
     /// <summary>
-    /// 商品と在庫情報をまとめたDTOクラス。未注文・未枝番の在庫も含めて商品情報を一覧表示する用途で使用します。
+    /// 商品販売在庫ビューのDTOクラス。未注文・未枝番の在庫も含めて商品情報を一覧表示する用途で使用します。
     /// </summary>
     public class ItemSalesStockDto
     {

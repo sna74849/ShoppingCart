@@ -1,28 +1,24 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DBManager.Framework;
+using Microsoft.AspNetCore.Mvc;
 using ShoppingCart.Models;
-using ShoppingCart.Models.Dao;
-using ShoppingCart.Models.Dto;
+using ShoppingCart.Models.Daos;
+using ShoppingCart.Models.Dtos;
 
 namespace ShoppingCart.Controllers
 {
-    public class ItemsController : Controller
+    public class ItemsController(DatabaseService dbService) : Controller
     {
         public IActionResult Index()
         {
+            IReadableDao<ItemSalesStockDto> dao = new ItemSalesStockDao();
             try
             {
-                var itemSalesStockDtoList = new List<ItemSalesStockDto>();
-
-                using (new ConnectionManager("Shopping"))
-                {
-                    return View(new ItemSalesStockDao().Find());
-                }
+                return View(dbService.Read(action:() => {
+                    return dao.Find();
+                }));
             }
-            catch(Exception e)
+            catch (Exception)
             {
-                ViewData["stackTrace"] = e.StackTrace;
-                ViewData["message"] = e.Message;
-
                 return View("Error");
             }
         }

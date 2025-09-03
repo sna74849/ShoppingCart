@@ -1,8 +1,11 @@
-﻿namespace ShoppingCart.Models.Entity
+﻿namespace ShoppingCart.Models.Entities
 {
     /// <summary>
     /// 注文ヘッダー情報を表すエンティティクラス。  
     /// 注文ごとの基本的な情報（注文コード、配送先番号、作成日時）を保持します。
+    /// <para>
+    /// データベーステーブル: <c>t_order_header</c>
+    /// </para>
     /// </summary>
     public class OrderHeaderEntity
     {

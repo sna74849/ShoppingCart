@@ -1,10 +1,12 @@
-﻿using ShoppingCart.Models.Entity;
+﻿using DBManager;
+using DBManager.Framework;
+using ShoppingCart.Models.Entities;
 
-namespace ShoppingCart.Models.Dao
+namespace ShoppingCart.Models.Daos
 {
-    public class CustomerDao : IBaseEntityDao<CustomerEntity> 
+    public class CustomerDao : BaseEntityDao<CustomerEntity>
     {
-        public CustomerEntity? Find(params object[] pkeys) {
+        protected override CustomerEntity? Fetch(params object[] pkeys) {
             string query = @"
                             SELECT 
                                 customer_id,
@@ -27,8 +29,8 @@ namespace ShoppingCart.Models.Dao
                     if (reader.Read()) {
                         return new CustomerEntity
                         {
-                            CustomerId = reader.GetString("customer_id"),
-                            Email = reader.GetString("email")!,
+                            CustomerId = reader.GetNonNullString("customer_id"),
+                            Email = reader.GetNonNullString("email")!,
                         };
                     }
                     else
@@ -38,25 +40,30 @@ namespace ShoppingCart.Models.Dao
                 }
             }
         }
-        public List<CustomerEntity> Find()
+        protected override List<CustomerEntity> Find()
+        {
+            throw new NotImplementedException();
+        }
+        protected override List<CustomerEntity> Find(params object[] pkeys)
         {
             throw new NotImplementedException();
         }
 
-        public List<CustomerEntity> FindBy(params object[] pkeys)
-        {
-            throw new NotImplementedException();
-        }
-        public int Insert(CustomerEntity entity) 
+        protected override int Insert(CustomerEntity entity)
         {
             throw new NotImplementedException();
         }
 
-        public int Update(CustomerEntity entity) 
+        protected override int Update(CustomerEntity entity)
         {
             throw new NotImplementedException();
         }
-        public int Delete(CustomerEntity entity)
+        protected override int Delete(params object[] pkeys)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override int Patch(object value, params object[] pkeys)
         {
             throw new NotImplementedException();
         }

@@ -1,17 +1,20 @@
-﻿using ShoppingCart.Models.Entity;
+﻿using DBManager;
+using DBManager.Framework;
+using ShoppingCart.Models.Entities;
 
-namespace ShoppingCart.Models.Dao {
-    public class StockDao : IBaseEntityDao<StockEntity> {
+namespace ShoppingCart.Models.Daos
+{
+    public class StockDao : BaseEntityDao<StockEntity> {
 
-        public StockEntity Find(params object[] pkeys) {
+        protected override StockEntity Fetch(params object[] pkeys) {
             throw new NotImplementedException();
         }
-        public List<StockEntity> Find()
+        protected override List<StockEntity> Find()
         {
             throw new NotImplementedException();
         }
 
-        public List<StockEntity> FindBy(params object[] pkeys)
+        protected override List<StockEntity> Find(params object[] pkeys)
         {
             string janCd = pkeys[0]?.ToString() ?? throw new ArgumentNullException("janCd is null");
             int qty = Convert.ToInt32(pkeys[1]);
@@ -40,7 +43,7 @@ namespace ShoppingCart.Models.Dao {
                     {
                         stockNoList.Add(new StockEntity
                         {
-                            StockNo = reader.GetInt("stock_no"),
+                            StockNo = reader.GetNonNullInt("stock_no"),
                         });
                     }
                     return stockNoList;
@@ -48,12 +51,24 @@ namespace ShoppingCart.Models.Dao {
             }
         }
 
-        public int Insert(StockEntity entity) {
+        protected override int Insert(StockEntity entity) {
             throw new NotImplementedException();
         }
 
-        public int Update(StockEntity entity) 
+        protected override int Update(StockEntity entity) 
         {
+            throw new NotImplementedException();
+        }
+        protected override int Delete(params object[] pkeys)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override int Patch(object value, params object[] pkeys)
+        {
+            string orderCd = value?.ToString() ?? throw new ArgumentNullException("orderCd is null");
+            string stockNo = pkeys[0]?.ToString() ?? throw new ArgumentNullException("stockNo is null");
+
             string query = @"
                             UPDATE 
                                 t_stock
@@ -63,18 +78,14 @@ namespace ShoppingCart.Models.Dao {
                             WHERE 
                                 stock_no = @stockNo";
 
-            using  var cmd = new SqlCommandBuilder()
+            using var cmd = new SqlCommandBuilder()
                 .WithCommandText(query)
-                .AddParameter("@orderCd", entity.OrderCd)
-                .AddParameter("@stockNo", entity.StockNo)
+                .AddParameter("@orderCd", orderCd)
+                .AddParameter("@stockNo", stockNo)
                 .Build();
             {
                 return cmd.ExecuteNonQuery();
             }
-        }
-        public int Delete(StockEntity entity)
-        {
-            throw new NotImplementedException();
         }
     }
 }
