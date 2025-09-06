@@ -33,14 +33,14 @@ namespace ShoppingCart.Models
 
         /// <summary>
         /// 書き込み処理をトランザクション内で実行する。
-        /// 呼び出し側は IWriteAction&lt;T&gt; を実装したクラスを渡す。
+        /// 呼び出し側は IServiceAction&lt;T&gt; を実装したクラスを渡す。
         /// </summary>
         /// <typeparam name="T">処理の戻り値の型</typeparam>
         /// <param name="action">書き込み処理を提供するクラス</param>
         /// <returns>処理結果</returns>
         /// <exception cref="DatabaseServiceException">トランザクション外のエラーが発生した場合</exception>
         /// <exception cref="InvalidOperationException">トランザクション内でエラーが発生した場合</exception>
-        public T? Write<T>(IWriteAction<T> action)
+        public T? Write<T>(IServiceAction<T> action)
         {
             try
             {
@@ -71,7 +71,7 @@ namespace ShoppingCart.Models
     /// トランザクション内で実行される。
     /// </summary>
     /// <typeparam name="T">処理結果の型</typeparam>
-    public interface IWriteAction<T>
+    public interface IServiceAction<T>
     {
         /// <summary>
         /// 書き込み処理の本体。

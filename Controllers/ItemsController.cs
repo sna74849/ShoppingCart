@@ -8,6 +8,7 @@ namespace ShoppingCart.Controllers
 {
     public class ItemsController(DatabaseService dbService) : Controller
     {
+        [HttpGet("/items")]
         public IActionResult Index()
         {
             IReadableDao<ItemSalesStockDto> dao = new ItemSalesStockDao();

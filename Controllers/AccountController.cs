@@ -19,8 +19,9 @@ namespace ShoppingCart.Controllers
         public IActionResult Logout()
         {
             TempData.Remove("customerId");
+            TempData.Remove("count");
             HttpContext.Session.Clear();
-            return View();
+            return View("Login");
         }
 
         public IActionResult LoginCheck(string customerId, string password)
@@ -47,12 +48,11 @@ namespace ShoppingCart.Controllers
                 {
                     TempData.Add("customerId", customerEty.CustomerId);
                 }
-                
-                return View("../Home/Index");
+                return RedirectToAction("Index","Home");// PRG法で二重送信を防ぐ
             }
             catch (Exception)
             {
-                return View("Error");
+                return RedirectToAction("Error");// PRG法で二重送信を防ぐ
             }
         }
     }

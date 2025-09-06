@@ -9,16 +9,15 @@ using ShoppingCart.Models.ViewModels;
 
 namespace ShoppingCart.Models.Actions
 {
-    public class OrderWriteAction(int destinationNo, List<CartItemViewModel> cartItemDtoList, List<OrderScheduledDeliveryViewModel> OrderScheduledDeliveryVm) : IWriteAction<OrderViewModel>
+    public class OrderWriteAction(int destinationNo, List<CartItemViewModel> cartItemDtoList, List<OrderScheduledDeliveryViewModel> OrderScheduledDeliveryVm) : IServiceAction<string>
     {
-        public OrderViewModel? Execute()
+        public string? Execute()
         {
             IWritableDao<OrderHeaderEntity> orderHeaderDao = new OrderHeaderDao();
             IWritableDao<OrderDetailEntity> orderDetailDao = new OrderDetailDao();
             IReadableDao<StockEntity> stockReadDao = new StockDao();
             IWritableDao<StockEntity> stockWriteDao = new StockDao();
             IReadableDao<SalesEntity> salesDao = new SalesDao();
-            IReadableDao<OrderDto> orderDao = new OrderDao();
 
             // 注文番号を生成
             var dateTime = DateTime.Now;
@@ -59,49 +58,7 @@ namespace ShoppingCart.Models.Actions
                 }
                 itemCnt += 1;
             }
-            var orderDtoList = orderDao!.Find(orderCd);
-            if (orderDtoList.Count > 0)
-            {
-                var orderViewModel = new OrderViewModel
-                {
-                    OrderCd = orderCd,
-                    Destination = new DestinationEntity
-                    {
-                        DestinationNo = orderDtoList[0].DestinationNo,
-                        CustomerId = orderDtoList[0].CustomerId,
-                        Name = orderDtoList[0].DestinationName,
-                        Postcode = orderDtoList[0].Postcode,
-                        Address = orderDtoList[0].Address,
-                        Phone = orderDtoList[0].Phone,
-                    }
-                };
-                List<OrderItemDto> orderItemDtoList = [];
-                var loop = 0;
-                do
-                {
-                    orderItemDtoList.Add(new OrderItemDto
-                    {
-                        SalesCd = orderDtoList[loop].SalesCd,
-                        ScheduledDeliveryAt = orderDtoList[loop].ScheduledDeliveryAt,
-                        ShippedAt = orderDtoList[loop].ShippedAt,
-                        CancelledAt = orderDtoList[loop].CancelledAt,
-                        Item = new ItemSalesStockDto
-                        {
-                            JanCd = orderDtoList[loop].JanCd,
-                            ItemNm = orderDtoList[loop].ItemNm,
-                            FileNm = orderDtoList[loop].FileNm,
-                            Price = orderDtoList[loop].Price,
-                            Qty = orderDtoList[loop].Qty,
-                        }
-                    });
-                } while (orderDtoList.Count > ++loop);
-                orderViewModel.OrderDetails = orderItemDtoList;
-                return orderViewModel;
-            }
-            else
-            {
-                return null;
-            }
+            return orderCd;
         }
     }
 }

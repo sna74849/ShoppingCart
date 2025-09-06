@@ -86,7 +86,7 @@
                 alert("お届け先を選択してください。");
                 return;
             }
-            form.action = `/register/orders${dest.value}`;
+            form.action = `/orders/${dest.value}`;
             form.submit();
         });
     </script>

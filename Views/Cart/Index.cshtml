@@ -11,9 +11,6 @@
     <div id="cart-container" class="mt-3">
         <!-- カートの内容はJSで動的に生成 -->
     </div>
-    <div class="text-center">
-        <a href="../register" class="btn-lg btn-warning text-white text-decoration-none">レジへ</a>
-    </div>
 </div>
 @section Scripts {
     <script>
@@ -138,6 +135,11 @@
             totalDiv.classList.add("col-md-12", "d-flex", "justify-content-end");
             totalDiv.innerHTML = `小計：${total.toLocaleString()}`;
             cartContainer.appendChild(totalDiv);
+
+            const registerDiv = document.createElement("div");
+            registerDiv.classList.add("text-center");
+            registerDiv.innerHTML = `<a href="../register" class="btn-lg btn-warning text-white text-decoration-none">レジへ</a>`;
+            cartContainer.appendChild(registerDiv);
         }
     </script>
 }

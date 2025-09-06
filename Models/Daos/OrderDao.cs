@@ -4,20 +4,51 @@ using ShoppingCart.Models.Dtos;
 
 namespace ShoppingCart.Models.Daos
 {
+    /// <summary>
+    /// 受注ビュー (v_order) にアクセスする DAO クラス。<br/>
+    /// 受注ヘッダ情報および受注明細情報をまとめて取得する機能を提供する。
+    /// </summary>
     public class OrderDao : BaseDtoDao<OrderDto>
     {
+        /// <summary>
+        /// 主キーを指定して単一の受注データを取得する。<br/>
+        /// 現在は未実装。
+        /// </summary>
+        /// <param name="pkeys">検索キー。</param>
+        /// <returns>受注データ。存在しない場合は <c>null</c>。</returns>
         protected override OrderDto? Fetch(params object[] pkeys)
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// すべての受注データを取得する。<br/>
+        /// 現在は未実装。
+        /// </summary>
+        /// <returns>受注データのリスト。</returns>
         protected override List<OrderDto> Find()
         {
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// 指定された受注コードに対応する受注データを取得する。<br/>
+        /// <paramref name="pkeys"/> の 0 番目に受注コード (orderCd) を渡すことで、<br/>
+        /// 受注ヘッダ情報および明細情報をまとめて取得する。
+        /// </summary>
+        /// <param name="pkeys">
+        /// 検索キー配列。  
+        /// [0] = orderCd (string)
+        /// </param>
+        /// <returns>
+        /// 受注データ (<see cref="OrderDto"/>) のリスト。<br/>
+        /// 1件の受注に対して明細行数分の DTO が生成される。<br/>
+        /// 対象の受注が存在しない場合は空のリストを返す。
+        /// </returns>
         protected override List<OrderDto> Find(params object[] pkeys)
         {
-            var orderCd = (string)pkeys[0];
+            var orderCd = pkeys[0].ToString() ?? throw new ArgumentNullException(nameof(pkeys), "[0] = orderCd (string)");
+
             string query = @"
                             SELECT 
                                 order_cd,
@@ -78,4 +109,3 @@ namespace ShoppingCart.Models.Daos
         }
     }
 }
-

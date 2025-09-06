@@ -1,16 +1,30 @@
 ﻿using DBManager;
 using DBManager.Framework;
 using ShoppingCart.Models.Dtos;
+
 namespace ShoppingCart.Models.Daos
 {
+    /// <summary>
+    /// 販売商品在庫ビュー (v_item_sales_stock) にアクセスする DAO クラス。<br/>
+    /// 商品情報と在庫数をまとめて取得する機能を提供する。
+    /// </summary>
     public class ItemSalesStockDao : BaseDtoDao<ItemSalesStockDto>
     {
-
         /// <summary>
-        /// JANコードに対応する販売商品の在庫データを取得する
+        /// 指定された JAN コードに対応する販売商品の在庫データを取得する。<br/>
+        /// 主に商品詳細画面やカート投入時の在庫確認に利用される。
         /// </summary>
-        /// <param name="pkeys">JANコード</param>
-        protected override ItemSalesStockDto? Fetch(params object[] pkeys) {
+        /// <param name="pkeys">
+        /// 検索キー配列。  
+        /// [0] = janCd (string)
+        /// </param>
+        /// <returns>
+        /// 該当する <see cref="ItemSalesStockDto"/> を返す。  
+        /// 見つからなかった場合は <c>null</c> を返す。
+        /// </returns>
+        protected override ItemSalesStockDto? Fetch(params object[] pkeys)
+        {
+            var janCd = pkeys[0].ToString() ?? throw new ArgumentNullException(nameof(pkeys), "[0] = janCd (string)");
             string query = @"
                             SELECT 
                                 jan_cd,
@@ -26,7 +40,7 @@ namespace ShoppingCart.Models.Daos
 
             using var cmd = new SqlCommandBuilder()
                 .WithCommandText(query)
-                .AddParameter("@janCd", pkeys[0])
+                .AddParameter("@janCd", janCd)
                 .Build();
             {
                 using var reader = cmd.ExecuteReader();
@@ -51,9 +65,15 @@ namespace ShoppingCart.Models.Daos
         }
 
         /// <summary>
-        /// 在庫数込み商品販売リストを取得
+        /// 在庫数を含めたすべての商品販売データを取得する。<br/>
+        /// 商品一覧画面などで利用される。
         /// </summary>
-        protected override List<ItemSalesStockDto> Find() {
+        /// <returns>
+        /// <see cref="ItemSalesStockDto"/> のリスト。<br/>
+        /// 該当データが存在しない場合は空のリストを返す。
+        /// </returns>
+        protected override List<ItemSalesStockDto> Find()
+        {
             string query = @"
                             SELECT 
                                 jan_cd,
@@ -88,10 +108,15 @@ namespace ShoppingCart.Models.Daos
             }
         }
 
+        /// <summary>
+        /// 検索キーを指定して商品販売在庫データを取得する。<br/>
+        /// 現在は未実装。
+        /// </summary>
+        /// <param name="pkeys">検索キー。</param>
+        /// <returns>在庫情報リスト。</returns>
         protected override List<ItemSalesStockDto> Find(params object[] pkeys)
         {
             throw new NotImplementedException();
         }
-
     }
 }

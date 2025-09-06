@@ -30,6 +30,15 @@ builder.Services.AddTransient<DatabaseService>();
 
 var app = builder.Build();
 
+// キャッシュを無効化してヒストリーバックも再読み込みを促す
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.CacheControl = "no-store, no-cache, must-revalidate";
+    context.Response.Headers.Pragma = "no-cache";
+    context.Response.Headers.Expires = "0";
+
+    await next();
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment()) {
@@ -44,6 +53,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
 
 // ƒZƒbƒVƒ‡ƒ“‚Ì—LŒø‰»
 app.UseSession();

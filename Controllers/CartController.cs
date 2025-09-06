@@ -52,20 +52,16 @@ namespace ShoppingCart.Controllers
                     
                 TempData["count"] = cartItemDtoList.Count;
 
-                return View("../Items/Index", dbService!.Read(action:() => {
-                    return dao.Find();
-                }));
+                return RedirectToAction("Index","Items");// PRG法で二重送信を防ぐまた商品情報読込のためアクションメソッドを再実行する必要がある
             }
             catch (StockException e)
             {
                 ViewData["message"] = e.Message;
-                return View("../Items/Index", dbService!.Read(action:() => {
-                    return dao.Find();
-                }));
+                return RedirectToAction("Index", "Items");// PRG法で二重送信を防ぐまた商品情報読込のためアクションメソッドを再実行する必要がある
             }
             catch (Exception)
             {
-                return View("Error");
+                return RedirectToAction("Error");// PRG法で二重送信を防ぐ
             }
         }
         [HttpPut("/cart/items/{janCd}")]
