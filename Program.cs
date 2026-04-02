@@ -1,14 +1,16 @@
 ﻿using DBManager;
-using ShoppingCart.Models;
+using ShoppingCart.Models.Daos;
+using ShoppingCart.Models.DatabaseFrameworks;
+using ShoppingCart.Models.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-// ƒZƒbƒVƒ‡ƒ“‚Ì—LŒø‰»
+// セッションの有効化
 builder.Services.AddDistributedMemoryCache();
-// ƒZƒbƒVƒ‡ƒ“‚Ì—LŒø‰»
 builder.Services.AddSession(options => {
     options.IOTimeout = TimeSpan.FromSeconds(3600);
     options.Cookie.HttpOnly = true;
@@ -25,8 +27,21 @@ builder.Services.AddControllers()
 // Singletonで接続管理をDI登録
 builder.Services.AddSingleton(new ConnectionManager("shopping"));
 
-// DatabaseServiceをTransientでDI登録
-builder.Services.AddTransient<DatabaseService>();
+// DatabaseFramework,Service,DaoをTransientでDI登録
+builder.Services.AddTransient<DatabaseFramework>();
+builder.Services.AddTransient<AccountService>();
+builder.Services.AddTransient<CartService>();
+builder.Services.AddTransient<ItemService>();
+builder.Services.AddTransient<OrderService>();
+builder.Services.AddTransient<RegisterService>();
+builder.Services.AddTransient<CustomerDao>();
+builder.Services.AddTransient<DestinationDao>();
+builder.Services.AddTransient<ItemSalesStockDao>();
+builder.Services.AddTransient<OrderDao>();
+builder.Services.AddTransient<OrderHeaderDao>();
+builder.Services.AddTransient<OrderDetailDao>();
+builder.Services.AddTransient<StockDao>();
+builder.Services.AddTransient<SalesDao>();
 
 var app = builder.Build();
 
@@ -40,10 +55,11 @@ app.Use(async (context, next) =>
     await next();
 });
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment()) {
+    // Configure the HTTP request pipeline.
     app.UseExceptionHandler("/Home/Error");
-}
+} 
+
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -55,7 +71,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 
-// ƒZƒbƒVƒ‡ƒ“‚Ì—LŒø‰»
+// セッションの有効化
 app.UseSession();
 
 app.Run();

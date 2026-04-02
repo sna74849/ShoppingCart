@@ -1,14 +1,11 @@
-﻿using DBManager.Framework;
-using Microsoft.AspNetCore.Mvc;
-using ShoppingCart.Models;
-using ShoppingCart.Models.Daos;
-using ShoppingCart.Models.Dtos;
+﻿using Microsoft.AspNetCore.Mvc;
 using ShoppingCart.Models.Exceptions;
+using ShoppingCart.Models.Services;
 using ShoppingCart.Models.ViewModels;
 
 namespace ShoppingCart.Controllers
 {
-    public class CartController(DatabaseService dbService) : Controller
+    public class CartController(CartService dbService) : Controller
     {
 
         [HttpGet("/cart")]
@@ -26,31 +23,27 @@ namespace ShoppingCart.Controllers
         [HttpPost("/cart/items")]
         public IActionResult Create([FromForm] string janCd, [FromForm] int qty)
         {
-            IReadableDao<ItemSalesStockDto> dao = new ItemSalesStockDao();
             try
             {
-                var cartItemDtoList
+                var cartItemVmList
                         = HttpContext.Session.GetObject<List<CartItemViewModel>>("cart") ?? [];
-                var cartItemDto = new CartItemViewModel
+                var cartItemVm = new CartItemViewModel
                 {
-                    Item = dbService.Read(action:() =>
-                    {
-                        return dao.Fetch(janCd);
-                    }) ?? throw new StockException("在庫がありません。")
+                    Item = dbService.GetItem(janCd)
                 };
-                if (cartItemDtoList.Find(it => it.Item.JanCd == janCd) == null)
+                if (cartItemVmList.Find(it => it.Item.JanCd == janCd) == null)
                 {
-                    cartItemDto.InCartQty = qty;
-                    cartItemDtoList.Add(cartItemDto);
+                    cartItemVm.InCartQty = qty;
+                    cartItemVmList.Add(cartItemVm);
                 }
                 else
                 {
-                    cartItemDtoList.Find(it => it.Item.JanCd == janCd)!.Item.Qty = qty;
+                    cartItemVmList.Find(it => it.Item.JanCd == janCd)!.Item.Qty = qty;
                 }
                     
-                HttpContext.Session.SetObject<List<CartItemViewModel>>("cart", cartItemDtoList);
+                HttpContext.Session.SetObject<List<CartItemViewModel>>("cart", cartItemVmList);
                     
-                TempData["count"] = cartItemDtoList.Count;
+                TempData["count"] = cartItemVmList.Count;
 
                 return RedirectToAction("Index","Items");// PRG法で二重送信を防ぐまた商品情報読込のためアクションメソッドを再実行する必要がある
             }
@@ -69,15 +62,15 @@ namespace ShoppingCart.Controllers
         {
             try
             {
-                var cartItemDtoList
+                var cartItemVmList
                     = HttpContext.Session.GetObject<List<CartItemViewModel>>("cart") ?? throw new Exception();
 
-                cartItemDtoList.Find(it => it.Item.JanCd == janCd)!.InCartQty = qty;
+                cartItemVmList.Find(it => it.Item.JanCd == janCd)!.InCartQty = qty;
 
-                HttpContext.Session.SetObject<List<CartItemViewModel>>("cart", cartItemDtoList);
+                HttpContext.Session.SetObject<List<CartItemViewModel>>("cart", cartItemVmList);
 
-                TempData["count"] = cartItemDtoList.Count;
-                return Ok(cartItemDtoList);
+                TempData["count"] = cartItemVmList.Count;
+                return Ok(cartItemVmList);
             }
             catch (Exception)
             {
@@ -89,15 +82,15 @@ namespace ShoppingCart.Controllers
         {
             try
             {
-                var cartItemDtoList
+                var cartItemVmList
                     = HttpContext.Session.GetObject<List<CartItemViewModel>>("cart") ?? throw new Exception();
 
-                cartItemDtoList.Remove(cartItemDtoList.Find(it => it.Item.JanCd == janCd) ?? throw new Exception());
+                cartItemVmList.Remove(cartItemVmList.Find(it => it.Item.JanCd == janCd) ?? throw new Exception());
 
-                HttpContext.Session.SetObject<List<CartItemViewModel>>("cart", cartItemDtoList);
+                HttpContext.Session.SetObject<List<CartItemViewModel>>("cart", cartItemVmList);
 
-                TempData["count"] = cartItemDtoList.Count;
-                return Ok(cartItemDtoList);
+                TempData["count"] = cartItemVmList.Count;
+                return Ok(cartItemVmList);
             }
             catch (Exception)
             {

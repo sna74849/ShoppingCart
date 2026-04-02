@@ -221,7 +221,7 @@ GO
 
 -- 顧客情報 登録（テストデータ）
 INSERT INTO m_customer(customer_id, password, email)
-VALUES('account','p','account1@emtech.com');
+VALUES('account','p','account1@sel.com');
 
 -- JANコード情報 登録（テストデータ）
 INSERT INTO m_item (jan_cd, item_nm, file_nm) VALUES('0000000000000','カメラ','PENTAXk33PAR53709_TP_V4.jpg');
@@ -253,11 +253,9 @@ INSERT INTO t_stock(jan_cd) VALUES('0000000000001');
 
 -- 配送先 登録（テストデータ）
 INSERT INTO m_destination(customer_id, name, postcode, address, phone)
-VALUES('account', 'エンベックス', '102-0083','東京都千代田区麹町5丁目3番地 麹町中田ビル5F','03-6384-1435');
+VALUES('account', '国会議事堂', '100-0014','東京都千代田区永田町１丁目７-１','03-3581-5111');
 INSERT INTO m_destination(customer_id, name, postcode, address, phone)
-VALUES('account', 'エンベックス', '510-0086','三重県四日市市諏訪栄町4-10 アピカビル4F','059-340-8140');
-INSERT INTO m_destination(customer_id, name, postcode, address, phone)
-VALUES('account', 'エンベックス', '231-0015','神奈川県横浜市中区尾上町4丁目47番地 リスト関内ビル201','03-6384-1435');
+VALUES('account', '皇居', '100-8111','東京都千代田区千代田１-１','03-3213-1111');
 
 -- トランザクションの確定（SET IMPLICIT_TRANSACTIONS ON による明示的なCOMMIT）
 COMMIT;

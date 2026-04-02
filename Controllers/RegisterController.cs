@@ -1,13 +1,10 @@
-﻿using DBManager.Framework;
-using Microsoft.AspNetCore.Mvc;
-using ShoppingCart.Models;
-using ShoppingCart.Models.Daos;
-using ShoppingCart.Models.Entities;
+﻿using Microsoft.AspNetCore.Mvc;
+using ShoppingCart.Models.Services;
 using ShoppingCart.Models.ViewModels;
 
 namespace ShoppingCart.Controllers
 {
-    public class RegisterController(DatabaseService dbService) : Controller
+    public class RegisterController(RegisterService dbService) : Controller
     {
         [HttpGet("/register")]
         public IActionResult Index()
@@ -20,7 +17,6 @@ namespace ShoppingCart.Controllers
             }
             try
             {
-                IReadableDao<DestinationEntity> destinationDao = new DestinationDao();
                 if (string.IsNullOrEmpty((string?)TempData["customerId"]))
                 {
                     //View("../Account/Login")で指定するとブラウザに"Home"のパスが残る。
@@ -28,10 +24,7 @@ namespace ShoppingCart.Controllers
                 } 
                 else
                 {
-                    ViewBag.Destinations = dbService!.Read(() => 
-                    {
-                        return destinationDao!.Find((string)TempData["customerId"]!);
-                    });
+                    ViewBag.Destinations = dbService.GetDestinationList((string)TempData["customerId"]!);
 
                     return View(cartItemDtoList);
                     

@@ -1,19 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ShoppingCart.Models;
-using ShoppingCart.Models.Actions;
 using ShoppingCart.Models.Exceptions;
+using ShoppingCart.Models.Services;
 using ShoppingCart.Models.ViewModels;
 
 namespace ShoppingCart.Controllers
 {
-    public class OrdersController(DatabaseService dbService) : Controller
+    public class OrdersController(OrderService service) : Controller
     {
         [HttpGet("/orders/{orderCd}")]
         public IActionResult Index([FromRoute] string orderCd)
         {
-            return View(dbService.Read(action: () => {
-                return new OrderReadAction(orderCd).Execute();
-            }));
+            return View(service.GetOrder(orderCd));
         }
 
         [HttpPost("/orders/{destinationNo}")]
@@ -35,8 +32,7 @@ namespace ShoppingCart.Controllers
 
                 HttpContext.Session.Clear();
                 TempData.Remove("count");
-                var orderWriteAction = new OrderWriteAction(destinationNo, cartItemDtoList, orderScheduledDeliveryViewModels);
-                var orderCd = dbService.Write(orderWriteAction)!;
+                var orderCd = service.CreateOrder(destinationNo, cartItemDtoList, orderScheduledDeliveryViewModels);
                 return LocalRedirect($"/orders/{orderCd}");// PRG法で二重送信を防ぐ
             }
             catch (OrderException e)

@@ -1,22 +1,16 @@
-﻿using DBManager.Framework;
-using Microsoft.AspNetCore.Mvc;
-using ShoppingCart.Models;
-using ShoppingCart.Models.Daos;
-using ShoppingCart.Models.Dtos;
+﻿using Microsoft.AspNetCore.Mvc;
+using ShoppingCart.Models.Services;
 
 namespace ShoppingCart.Controllers
 {
-    public class ItemsController(DatabaseService dbService) : Controller
+    public class ItemsController(ItemService dbService) : Controller
     {
         [HttpGet("/items")]
         public IActionResult Index()
         {
-            IReadableDao<ItemSalesStockDto> dao = new ItemSalesStockDao();
             try
             {
-                return View(dbService.Read(action:() => {
-                    return dao.Find();
-                }));
+                return View(dbService.GetItemSalesStockList());
             }
             catch (Exception)
             {

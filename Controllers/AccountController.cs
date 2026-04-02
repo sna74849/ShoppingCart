@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using DBManager.Framework;
-using ShoppingCart.Models;
-using ShoppingCart.Models.Entities;
-using ShoppingCart.Models.Daos;
+using ShoppingCart.Models.Services;
 
 namespace ShoppingCart.Controllers
 {
-    public class AccountController(DatabaseService dbservice) : Controller
+    public class AccountController(AccountService service) : Controller
     {
         public IActionResult Index()
         {
@@ -33,12 +30,8 @@ namespace ShoppingCart.Controllers
                     ViewData["errorMessage"] = "IDとパスワードを入力してください。";
                     return View("Login");
                 }
-                var customerEty = dbservice.Read(action:() =>
-                    {
-                        IReadableDao<CustomerEntity> customerDao = new CustomerDao();
-                        return customerDao.Fetch(customerId, password);
-                    }
-                );
+
+                var customerEty = service.Login(customerId, password);
                 if (customerEty == null)
                 {
                     ViewData["errorMessage"] = "IDかパスワードが間違っています。";
@@ -52,7 +45,7 @@ namespace ShoppingCart.Controllers
             }
             catch (Exception)
             {
-                return RedirectToAction("Error");// PRG法で二重送信を防ぐ
+                return RedirectToAction("Error","Home");// PRG法で二重送信を防ぐ
             }
         }
     }
