@@ -34,7 +34,6 @@ DAO（DBアクセス）
 ```
 ShoppingCart
 ├── Controllers
-│
 ├── Models
 │   ├── Actions
 │   ├── Services
