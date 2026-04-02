@@ -189,8 +189,8 @@ IWriteAction<T>
 
 #### ✔ データモデル
 
-* DTO：DB取得用
-* Entity：DB更新用
+* DTO：DB取得用(結合テーブル、Sqlビュー)
+* Entity：DB更新用(テーブル)
 * ViewModel：画面表示用
 
 ---
