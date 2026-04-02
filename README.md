@@ -221,7 +221,81 @@ Viewは **「表示のみ」** に責務を限定する。
 * 表示変更の影響範囲が限定される
 
 ---
+## 🔗 外部依存（DBManager）
 
+本プロジェクトは、以下の外部ライブラリに依存しています。
+
+### 📦 DBManager.dll
+
+* リポジトリ
+  https://github.com/sna74849/DBManager
+
+* 役割
+  データベースアクセスを抽象化する共通基盤ライブラリ
+
+---
+
+### 🧩 主な機能
+
+DBManager は以下の機能を提供します：
+
+* DBコネクション管理
+* SQL実行ラッパー（Command / Reader）
+* DAO基底クラスの提供
+
+  * `BaseEntityDao<T>`
+  * `BaseDtoDao<T>`
+* トランザクション制御の補助
+* パラメータバインディング機能
+
+---
+
+### 🏗️ 本プロジェクトとの関係
+
+```text
+ShoppingCart
+   ↓
+DatabaseFramework（トランザクション制御）
+   ↓
+DAO（OrderDao など）
+   ↓
+DBManager.dll ← ★ここに依存
+   ↓
+Database
+```
+
+---
+
+### 🎯 設計上の位置付け
+
+本ライブラリは以下の責務を担う：
+
+* インフラ層（Infrastructure Layer）
+* DBアクセスの詳細を隠蔽
+* DAOの実装を簡素化
+
+---
+
+### 💡 利用例
+
+```csharp
+using var cmd = new SqlCommandBuilder()
+    .WithCommandText(query)
+    .AddParameter("orderCd", orderCd)
+    .Build();
+
+using var reader = cmd.ExecuteReader();
+```
+
+---
+
+### ⚠️ 注意事項
+
+* 本プロジェクトは DBManager に強く依存している
+* 別のORM（Entity Framework等）への置き換えは設計変更が必要
+* DAO層は DBManager の抽象に従って実装されている
+
+---
 ## 📜 ライセンス
 
 This project is for educational purposes.
