@@ -17,14 +17,14 @@ namespace ShoppingCart.Controllers
             }
             try
             {
-                if (string.IsNullOrEmpty((string?)TempData["customerId"]))
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("customerId")))
                 {
                     //View("../Account/Login")で指定するとブラウザに"Home"のパスが残る。
                     return RedirectToAction("Login", "Account");
                 } 
                 else
                 {
-                    ViewBag.Destinations = dbService.GetDestinationList((string)TempData["customerId"]!);
+                    ViewBag.Destinations = dbService.GetDestinationList(HttpContext.Session.GetString("customerId")!);
 
                     return View(cartItemDtoList);
                     

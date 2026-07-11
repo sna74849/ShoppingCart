@@ -1,8 +1,5 @@
-﻿@{
-    // 一時データを保持する
-    TempData.Keep("customerId");
-    TempData.Keep("count");
-}
+﻿
+@using Microsoft.AspNetCore.Mvc;
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,19 +29,20 @@
                         </li>
                     </ul>
                     <a href="../cart" class="btn btn-outline-warning text-black m-1">カート
-                        @if ((int)(TempData["count"] ?? 0) > 0)
+                        @if ((Context.Session.GetInt32("count") ?? 0) > 0)
                         {
-                            @string.Format("[{0}]", TempData["count"])
+                            @string.Format("[{0}]", Context.Session.GetInt32("count"))
                         }
 
                     </a>
-                    @if (string.IsNullOrEmpty((string?)TempData["customerId"])) {
+                    @if (string.IsNullOrEmpty(Context.Session.GetString("customerId")))
+                    {
                         <a href="../account/Login" class="btn btn-primary text-white">ログイン</a>
                     } else {
                         <a href="../account/Logout" class="btn btn-primary text-white">ログアウト</a>
                     }
                 </div>
-            </div>
+            </div>  
         </nav>
     </header>
     <div class="container">

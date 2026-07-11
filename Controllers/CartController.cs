@@ -43,7 +43,7 @@ namespace ShoppingCart.Controllers
                     
                 HttpContext.Session.SetObject<List<CartItemViewModel>>("cart", cartItemVmList);
                     
-                TempData["count"] = cartItemVmList.Count;
+                HttpContext.Session.SetInt32("count",cartItemVmList.Count);
 
                 return RedirectToAction("Index","Items");// PRG法で二重送信を防ぐまた商品情報読込のためアクションメソッドを再実行する必要がある
             }
@@ -69,7 +69,7 @@ namespace ShoppingCart.Controllers
 
                 HttpContext.Session.SetObject<List<CartItemViewModel>>("cart", cartItemVmList);
 
-                TempData["count"] = cartItemVmList.Count;
+                HttpContext.Session.SetInt32("count", cartItemVmList.Count);
                 return Ok(cartItemVmList);
             }
             catch (Exception)
@@ -89,7 +89,7 @@ namespace ShoppingCart.Controllers
 
                 HttpContext.Session.SetObject<List<CartItemViewModel>>("cart", cartItemVmList);
 
-                TempData["count"] = cartItemVmList.Count;
+                HttpContext.Session.SetInt32("count", cartItemVmList.Count);
                 return Ok(cartItemVmList);
             }
             catch (Exception)

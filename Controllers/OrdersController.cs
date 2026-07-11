@@ -10,6 +10,12 @@ namespace ShoppingCart.Controllers
         [HttpGet("/orders/{orderCd}")]
         public IActionResult Index([FromRoute] string orderCd)
         {
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("customerId")))
+            {
+                //View("../Account/Login")で指定するとブラウザに"Home"のパスが残る。
+                return RedirectToAction("Login", "Account");
+            }
+
             return View(service.GetOrder(orderCd));
         }
 
@@ -24,14 +30,14 @@ namespace ShoppingCart.Controllers
             }
             try
             {
-                if (string.IsNullOrEmpty((string?)TempData.Peek("customerId")))// TempData["customerId"]だとリダイレクトで消えてしまう。
+                if (string.IsNullOrEmpty(HttpContext.Session.GetString("customerId")))
                 {
                     //View("../Account/Login")で指定するとブラウザに"Home"のパスが残る。
                     return RedirectToAction("Login", "Account");
                 }
 
-                HttpContext.Session.Clear();
-                TempData.Remove("count");
+                HttpContext.Session.Remove("cart");
+                HttpContext.Session.Remove("count");
                 var orderCd = service.CreateOrder(destinationNo, cartItemDtoList, orderScheduledDeliveryViewModels);
                 return LocalRedirect($"/orders/{orderCd}");// PRG法で二重送信を防ぐ
             }

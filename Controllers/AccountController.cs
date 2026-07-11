@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ShoppingCart.Models.Services;
+using ShoppingCart.Models.ViewModels;
 
 namespace ShoppingCart.Controllers
 {
@@ -15,31 +16,27 @@ namespace ShoppingCart.Controllers
         }
         public IActionResult Logout()
         {
-            TempData.Remove("customerId");
-            TempData.Remove("count");
             HttpContext.Session.Clear();
             return View("Login");
         }
 
-        public IActionResult LoginCheck(string customerId, string password)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult LoginCheck([Bind] LoginViewModel loginVm)
         {
             try
             {
-                if (string.IsNullOrEmpty(customerId) || string.IsNullOrEmpty(password))
-                {
-                    ViewData["errorMessage"] = "IDとパスワードを入力してください。";
-                    return View("Login");
-                }
+                if (!ModelState.IsValid) return View("Login");
 
-                var customerEty = service.Login(customerId, password);
+                var customerEty = service.Login(loginVm.CustomerId, loginVm.Password);
                 if (customerEty == null)
                 {
-                    ViewData["errorMessage"] = "IDかパスワードが間違っています。";
+                    ModelState.AddModelError("", "IDかパスワードが間違っています。");
                     return View("Login");
                 }
                 else
                 {
-                    TempData.Add("customerId", customerEty.CustomerId);
+                    HttpContext.Session.SetString("customerId", customerEty.CustomerId);
                 }
                 return RedirectToAction("Index","Home");// PRG法で二重送信を防ぐ
             }
