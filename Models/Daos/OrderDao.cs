@@ -33,21 +33,31 @@ namespace ShoppingCart.Models.Daos
 
         /// <summary>
         /// 指定された受注コードに対応する受注データを取得する。<br/>
-        /// <paramref name="pkeys"/> の 0 番目に受注コード (orderCd) を渡すことで、<br/>
+        /// <paramref name="pkeys"/> の 0 番目に受注コード (orderCd) 、<br/>
+        /// 1 番目に顧客ID (customerId) を指定し、<br/>
         /// 受注ヘッダ情報および明細情報をまとめて取得する。
         /// </summary>
         /// <param name="pkeys">
-        /// 検索キー配列。  
-        /// [0] = orderCd (string)
+        /// 検索キー配列。<br/>
+        /// [0] = orderCd (string)<br/>
+        /// [1] = customerId (string)
         /// </param>
         /// <returns>
         /// 受注データ (<see cref="OrderDto"/>) のリスト。<br/>
         /// 1件の受注に対して明細行数分の DTO が生成される。<br/>
         /// 対象の受注が存在しない場合は空のリストを返す。
         /// </returns>
+        /// <exception cref="NullReferenceException">
+        /// <paramref name="pkeys"/> の [0]（orderCd）または [1]（customerId）が
+        /// <c>null</c> の場合にスローされる。
+        /// </exception>
+        /// <exception cref="IndexOutOfRangeException">
+        /// <paramref name="pkeys"/> の要素数が 2 未満の場合にスローされる。
+        /// </exception>
         protected override List<OrderDto> Find(params object[] pkeys)
         {
             var orderCd = pkeys[0].ToString() ?? throw new ArgumentNullException(nameof(pkeys), "[0] = orderCd (string)");
+            var customerId = pkeys[1].ToString() ?? throw new ArgumentNullException(nameof(pkeys), "[1] = customerId (string)");
 
             string query = @"
                             SELECT 
@@ -71,10 +81,13 @@ namespace ShoppingCart.Models.Daos
                                 v_order o
                             WHERE 
                                 order_cd = @orderCd
+                            AND 
+                                customer_id = @customerId
                             ";
             using var cmd = new SqlCommandBuilder()
                 .WithCommandText(query)
                 .AddParameter("orderCd", orderCd)
+                .AddParameter("customerId", customerId)
                 .Build();
             {
                 using var reader = cmd.ExecuteReader();

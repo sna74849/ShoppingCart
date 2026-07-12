@@ -19,6 +19,7 @@
                 <p>@(string.Format("{0:#,0}",value.Price)) 円</p>
                 <div class="row bottom-0">
                     <form action="../cart/items" method="post">
+                        @Html.AntiForgeryToken()
                         @if(value.Qty == 0) {
                             <span>在庫なし</span>
                         }else{

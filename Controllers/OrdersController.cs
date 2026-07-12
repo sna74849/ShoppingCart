@@ -16,10 +16,11 @@ namespace ShoppingCart.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            return View(service.GetOrder(orderCd));
+            return View(service.GetOrder(orderCd, HttpContext.Session.GetString("customerId")!));
         }
 
         [HttpPost("/orders/{destinationNo}")]
+        [ValidateAntiForgeryToken]
         public IActionResult Create([FromRoute] int destinationNo, [Bind] List<OrderScheduledDeliveryViewModel> orderScheduledDeliveryViewModels)
         {
             var cartItemDtoList

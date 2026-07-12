@@ -5,6 +5,7 @@ using ShoppingCart.Models.ViewModels;
 
 namespace ShoppingCart.Controllers
 {
+    [AutoValidateAntiforgeryToken]
     public class CartController(CartService dbService) : Controller
     {
 

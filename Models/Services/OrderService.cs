@@ -79,6 +79,7 @@ namespace ShoppingCart.Models.Services
         /// 注文コードを指定して注文情報を取得する。
         /// </summary>
         /// <param name="orderCd">注文コード（null・空文字不可）</param>
+        /// <param name="customerId">顧客ID</param>
         /// <returns>注文情報。該当データが存在しない場合は <c>null</c></returns>
         /// <remarks>
         /// 本メソッドは以下の処理を行う。
@@ -96,15 +97,21 @@ namespace ShoppingCart.Models.Services
         /// </remarks>
         /// <exception cref="ArgumentNullException">
         /// orderCd が null または空文字の場合
+        /// customerId が null または空文字の場合
         /// </exception>
-        public OrderViewModel? GetOrder(string orderCd)
+        public OrderViewModel? GetOrder(string orderCd, string customerId)
         {
             if (string.IsNullOrWhiteSpace(orderCd))
             {
                 throw new ArgumentNullException(nameof(orderCd));
             }
 
-            return dbFramework.Execute(new OrderReadAction(orderCd, orderDao));
+            if (string.IsNullOrWhiteSpace(customerId))
+            {
+                throw new ArgumentNullException(nameof(customerId));
+            }
+
+            return dbFramework.Execute(new OrderReadAction(orderCd, customerId, orderDao));
         }
     }
 }

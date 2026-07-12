@@ -22,17 +22,17 @@ namespace ShoppingCart.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult LoginCheck([Bind] LoginViewModel loginVm)
+        public IActionResult Login([Bind] LoginViewModel loginVm)
         {
             try
             {
-                if (!ModelState.IsValid) return View("Login");
+                if (!ModelState.IsValid) return View();
 
                 var customerEty = service.Login(loginVm.CustomerId, loginVm.Password);
                 if (customerEty == null)
                 {
                     ModelState.AddModelError("", "IDかパスワードが間違っています。");
-                    return View("Login");
+                    return View();
                 }
                 else
                 {

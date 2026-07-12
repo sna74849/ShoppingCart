@@ -28,8 +28,9 @@ namespace ShoppingCart.Models.Actions
     /// ・DTOはDB構造に依存し、ViewModelは画面表示用に整形される
     /// </remarks>
     /// <param name="orderCd">取得対象の注文番号</param>
+    /// <param name="customerId">取得対象の顧客ID</param>
     /// <param name="orderDao">注文情報取得用DAO（注文ヘッダ・明細の結合データを返却する）</param>
-    public class OrderReadAction(string orderCd, OrderDao orderDao) : IReadAction<OrderViewModel>
+    public class OrderReadAction(string orderCd, string customerId, OrderDao orderDao) : IReadAction<OrderViewModel>
     {
         /// <summary>
         /// 注文情報取得用のDAO
@@ -63,7 +64,7 @@ namespace ShoppingCart.Models.Actions
         /// </remarks>
         public OrderViewModel? ExecuteQuery()
         {
-            var orderDtoList = _orderDao.Find(orderCd);
+            var orderDtoList = _orderDao.Find(orderCd, customerId);
 
             if (orderDtoList.Count > 0)
             {

@@ -17,6 +17,12 @@ builder.Services.AddSession(options => {
     options.Cookie.IsEssential = true;
 });
 
+// CSRF対策のためにAntiforgeryを有効化(JS)
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-CSRF-TOKEN";
+});
+
 // JSでのJsonのCamelCase変換を無効化
 builder.Services.AddControllers()
     .AddJsonOptions(options =>

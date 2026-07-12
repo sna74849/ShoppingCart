@@ -2,6 +2,9 @@
 
 namespace ShoppingCart.Models.ViewModels
 {
+    /// <summary>
+    /// ログイン情報をまとめたViewModel。
+    /// </summary>
     public class LoginViewModel
     {
         /// <summary>

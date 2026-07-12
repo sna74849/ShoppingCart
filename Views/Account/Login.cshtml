@@ -5,14 +5,14 @@
 
 <div class="container text-center col-md-4">
     <h1>ログイン</h1>
-    <form action="LoginCheck" method="post">
+    <form action="Login" method="post">
         @Html.AntiForgeryToken()
         <div class="form-floating">
-            <input name="customerId" type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
+            <input name="CustomerId" type="email" class="form-control" id="floatingInput" placeholder="name@example.com">
             <label for="floatingInput">Email address</label>
         </div>
         <div class="form-floating">
-            <input name="password" type="password" class="form-control" id="floatingPassword" placeholder="Password">
+            <input name="Password" type="password" class="form-control" id="floatingPassword" placeholder="Password">
             <label for="floatingPassword">Password</label>
         </div>
 

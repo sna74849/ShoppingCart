@@ -4,7 +4,10 @@
     ViewData["Title"] = "Cart";
 }
 @model List<CartItemViewModel>
-
+<!-- CSRFトークンを取得するためにIAntiforgeryを注入 -->
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf 
+<!-- CSRFトークンをJSで使えるようにするためにmetaタグに埋め込む -->
+<meta name="csrf-token" content="@Xsrf.GetAndStoreTokens(Context).RequestToken" />
 <h1>カート </h1>
 <div class="container">
     <a href="../items">&lt;&emsp;商品一覧へ</a>
@@ -46,20 +49,25 @@
             if (target.matches('.qty-select')) {
                 qty = form.querySelector('.qty-select').value;
             }
-
+            // ここでトークン取得
+            const token = document.querySelector('meta[name="csrf-token"]').content;
             try {
                 let response = null;
                 if (target.matches('.qty-select')) {
                     response = await fetch(`/cart/items/${janCd}`, {
                         method: 'PUT',
                         headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRF-TOKEN': token   // ← CSRFトークンをヘッダーに追加
                         },
                         body: new URLSearchParams({ qty })
                     });
                 } else {
                     response = await fetch(`/cart/items/${janCd}`, {
-                        method: 'DELETE'
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': token   // ← CSRFトークンをヘッダーに追加
+                        }
                     });
                 }
 
