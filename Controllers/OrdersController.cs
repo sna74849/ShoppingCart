@@ -15,20 +15,17 @@ namespace ShoppingCart.Controllers
                 //View("../Account/Login")で指定するとブラウザに"Home"のパスが残る。
                 return RedirectToAction("Login", "Account");
             }
-
             return View(service.GetOrder(orderCd, HttpContext.Session.GetString("customerId")!));
         }
 
-        [HttpPost("/orders/{destinationNo}")]
+        [HttpPost("/orders")]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([FromRoute] int destinationNo, [Bind] List<OrderScheduledDeliveryViewModel> orderScheduledDeliveryViewModels)
+        public IActionResult Create([Bind] OrderWriteViewModel orderWriteVm)
         {
             var cartItemDtoList
                 = HttpContext.Session.GetObject<List<CartItemViewModel>>("cart") ?? [];
-            if (cartItemDtoList.Count == 0)
-            {
-                return View("../Cart/Index");
-            }
+            if (cartItemDtoList.Count == 0) return View("../Cart/Index");
+            
             try
             {
                 if (string.IsNullOrEmpty(HttpContext.Session.GetString("customerId")))
@@ -39,7 +36,7 @@ namespace ShoppingCart.Controllers
 
                 HttpContext.Session.Remove("cart");
                 HttpContext.Session.Remove("count");
-                var orderCd = service.CreateOrder(destinationNo, cartItemDtoList, orderScheduledDeliveryViewModels);
+                var orderCd = service.CreateOrder(orderWriteVm, cartItemDtoList);
                 return LocalRedirect($"/orders/{orderCd}");// PRG法で二重送信を防ぐ
             }
             catch (OrderException e)

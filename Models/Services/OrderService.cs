@@ -30,9 +30,8 @@ namespace ShoppingCart.Models.Services
         /// <summary>
         /// 注文を新規登録する。
         /// </summary>
-        /// <param name="destinationNo">配送先番号</param>
+        /// <param name="orderWriteVm">注文登録用のViewModel</param>
         /// <param name="cartItemVmList">カート内の商品一覧（null不可・1件以上）</param>
-        /// <param name="deliveryList">配送予定情報一覧（商品と同一順序・同一件数）</param>
         /// <returns>登録された注文コード</returns>
         /// <remarks>
         /// 本メソッドは以下の処理を行う。
@@ -59,14 +58,12 @@ namespace ShoppingCart.Models.Services
         /// <exception cref="Exception">
         /// 注文登録処理中にエラーが発生した場合（DBエラー含む）
         /// </exception>
-        public string CreateOrder(int destinationNo,
-                             List<CartItemViewModel> cartItemVmList,
-                             List<OrderScheduledDeliveryViewModel> deliveryList)
+        public string CreateOrder(OrderWriteViewModel orderWriteVm,
+                             List<CartItemViewModel> cartItemVmList)
         {
             var action = new OrderWriteAction(
-                destinationNo,
+                orderWriteVm,
                 cartItemVmList,
-                deliveryList,
                 orderHeaderDao,
                 orderDetailDao,
                 stockDao,
@@ -99,7 +96,7 @@ namespace ShoppingCart.Models.Services
         /// orderCd が null または空文字の場合
         /// customerId が null または空文字の場合
         /// </exception>
-        public OrderViewModel? GetOrder(string orderCd, string customerId)
+        public OrderReadViewModel? GetOrder(string orderCd, string customerId)
         {
             if (string.IsNullOrWhiteSpace(orderCd))
             {

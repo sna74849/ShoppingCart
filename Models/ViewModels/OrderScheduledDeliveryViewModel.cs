@@ -1,7 +1,7 @@
 ﻿namespace ShoppingCart.Models.ViewModels
 {
     /// <summary>
-    /// 商品ごとの配送希望日を指定するためのビューモデル（DTO）。
+    /// 商品ごとの配送希望日を指定するためのDTO。
     /// </summary>
     public class OrderScheduledDeliveryViewModel
     {

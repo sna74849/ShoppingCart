@@ -7,7 +7,9 @@ namespace ShoppingCart.Models.ViewModels
     /// </summary>
     public class CartItemViewModel
     {
-
+        /// <summary>
+        /// 商品情報と在庫情報をまとめたDTO。
+        /// </summary>
         public ItemSalesStockDto Item { get; set; } = default!;
         /// <summary>
         /// カートに入っている数量

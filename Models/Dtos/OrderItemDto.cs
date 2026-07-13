@@ -11,6 +11,9 @@ namespace ShoppingCart.Models.Dtos
     /// </remarks>
     public class OrderItemDto : OrderDetailEntity
     {
+        /// <summary>
+        /// 注文内の商品の詳細情報を表すプロパティ。
+        /// </summary>
         public ItemSalesStockDto Item { get; set; } = default!;
     }
 }

@@ -32,16 +32,14 @@ namespace ShoppingCart.Models.Actions
     /// ・在庫取得および売上情報取得は商品単位で実行されるため、
     ///   データ件数が多い場合はパフォーマンスに注意すること
     /// </remarks>
-    /// <param name="destinationNo">配送先番号</param>
+    /// <param name="orderWriteVm">注文登録用のViewModel</param>
     /// <param name="cartItemVmList">カート内の商品一覧</param>
-    /// <param name="orderScheduledDeliveryVmList">配送指定情報一覧（商品と同一順序であること）</param>
     /// <param name="orderHeaderDao">注文ヘッダ登録DAO</param>
     /// <param name="orderDetailDao">注文明細登録DAO</param>
     /// <param name="stockDao">在庫参照・更新DAO</param>
     /// <param name="salesDao">売上情報参照DAO</param>
-    public class OrderWriteAction(int destinationNo,
+    public class OrderWriteAction(OrderWriteViewModel orderWriteVm,
                                     List<CartItemViewModel> cartItemVmList,
-                                    List<OrderScheduledDeliveryViewModel> orderScheduledDeliveryVmList,
                                     OrderHeaderDao orderHeaderDao,
                                     OrderDetailDao orderDetailDao,
                                     StockDao stockDao,
@@ -110,7 +108,7 @@ namespace ShoppingCart.Models.Actions
             _orderHeaderWriteDao.Insert(new OrderHeaderEntity
             {
                 OrderCd = orderCd,
-                DestinationNo = destinationNo
+                DestinationNo = orderWriteVm.DestinationNo
             });
 
             int itemCnt = 0;
@@ -138,8 +136,8 @@ namespace ShoppingCart.Models.Actions
                         SalesCd = _salesReadDao.Fetch(cartItemDto.Item.JanCd)!.SalesCd,
                         SeqNo = seqNo++,
                         ScheduledDeliveryAt
-                            = orderScheduledDeliveryVmList[itemCnt].ScheduledDeliveryIs
-                                ? orderScheduledDeliveryVmList[itemCnt].ScheduledDeliveryAt
+                            = orderWriteVm.OrderScheduledDeliveryVmList[itemCnt].ScheduledDeliveryIs
+                                ? orderWriteVm.OrderScheduledDeliveryVmList[itemCnt].ScheduledDeliveryAt
                                 : null,
                         ShippedAt = null
                     });

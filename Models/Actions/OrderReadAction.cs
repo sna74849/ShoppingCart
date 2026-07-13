@@ -12,7 +12,7 @@ namespace ShoppingCart.Models.Actions
     /// </summary>
     /// <remarks>
     /// 指定された注文番号を元に注文情報および注文明細を取得し、
-    /// <see cref="OrderViewModel"/> に変換して返却する。
+    /// <see cref="OrderReadViewModel"/> に変換して返却する。
     ///
     /// 【処理概要】
     /// ・DAOから注文情報（ヘッダ＋明細の結合データ）を取得
@@ -30,7 +30,7 @@ namespace ShoppingCart.Models.Actions
     /// <param name="orderCd">取得対象の注文番号</param>
     /// <param name="customerId">取得対象の顧客ID</param>
     /// <param name="orderDao">注文情報取得用DAO（注文ヘッダ・明細の結合データを返却する）</param>
-    public class OrderReadAction(string orderCd, string customerId, OrderDao orderDao) : IReadAction<OrderViewModel>
+    public class OrderReadAction(string orderCd, string customerId, OrderDao orderDao) : IReadAction<OrderReadViewModel>
     {
         /// <summary>
         /// 注文情報取得用のDAO
@@ -41,7 +41,7 @@ namespace ShoppingCart.Models.Actions
         /// 注文情報を取得する。
         /// </summary>
         /// <returns>
-        /// 注文情報を格納した <see cref="OrderViewModel"/>。
+        /// 注文情報を格納した <see cref="OrderReadViewModel"/>。
         /// 対象の注文が存在しない場合は <c>null</c> を返す。
         /// </returns>
         /// <remarks>
@@ -51,7 +51,7 @@ namespace ShoppingCart.Models.Actions
         /// <item>取得結果が存在しない場合は null を返却する</item>
         /// <item>先頭レコードを基に配送先情報を構築する</item>
         /// <item>全レコードを走査し、注文明細リストを生成する</item>
-        /// <item><see cref="OrderViewModel"/> にマッピングして返却する</item>
+        /// <item><see cref="OrderReadViewModel"/> にマッピングして返却する</item>
         /// </list>
         ///
         /// 【注意】
@@ -62,13 +62,13 @@ namespace ShoppingCart.Models.Actions
         /// ・本処理は単一クエリ結果をメモリ上で整形するのみであり、
         ///   追加のDBアクセスは発生しない
         /// </remarks>
-        public OrderViewModel? ExecuteQuery()
+        public OrderReadViewModel? ExecuteQuery()
         {
             var orderDtoList = _orderDao.Find(orderCd, customerId);
 
             if (orderDtoList.Count > 0)
             {
-                var orderViewModel = new OrderViewModel
+                var orderViewModel = new OrderReadViewModel
                 {
                     OrderCd = orderCd,
                     Destination = new DestinationEntity

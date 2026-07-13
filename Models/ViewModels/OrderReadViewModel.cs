@@ -6,7 +6,7 @@ namespace ShoppingCart.Models.ViewModels
     /// <summary>
     /// 注文情報をまとめたViewModel。
     /// </summary>
-    public class OrderViewModel {
+    public class OrderReadViewModel {
 
         /// <summary>
         /// 注文コード。システム内で一意の注文を識別するためのコードです。
