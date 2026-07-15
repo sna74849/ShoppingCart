@@ -1,153 +1,249 @@
-﻿@using ShoppingCart.Models.Dtos
-@using ShoppingCart.Models.ViewModels
-@{
-    ViewData["Title"] = "Cart";
-}
-@model List<CartItemViewModel>
-<!-- CSRFトークンを取得するためにIAntiforgeryを注入 -->
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf 
-<!-- CSRFトークンをJSで使えるようにするためにmetaタグに埋め込む -->
-<meta name="csrf-token" content="@Xsrf.GetAndStoreTokens(Context).RequestToken" />
-<h1>カート </h1>
-<div class="container">
-    <a href="../items">&lt;&emsp;商品一覧へ</a>
-    <div id="cart-container" class="mt-3">
-        <!-- カートの内容はJSで動的に生成 -->
+﻿    @using ShoppingCart.Models.ViewModels
+    @{
+        ViewData["Title"] = "Cart";
+    }
+    @model List<CartItemViewModel>
+    <!-- CSRFトークンを取得するためにIAntiforgeryを注入 -->
+    @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf 
+    <!-- CSRFトークンをJSで使えるようにするためにmetaタグに埋め込む -->
+    <meta name="csrf-token" content="@Xsrf.GetAndStoreTokens(Context).RequestToken" />
+    <h1>カート </h1>
+    <div class="container">
+        <a href="../items">&lt;&emsp;商品一覧へ</a>
+        <div id="cart-container" class="mt-3">
+            <!-- カートの内容はJSで動的に生成 -->
+        </div>
     </div>
-</div>
-@section Scripts {
-    <script>
-        // サーバー側の Model を JS に渡す
-        const initialCartData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
+    @section Scripts {
+        <script>
+            // サーバー側の Model を JS に渡す
+            const initialCartData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
 
-        // ページロード時に renderCart を実行
-        document.addEventListener("DOMContentLoaded", () => {
-            renderCart(initialCartData);
-        });
-
-
-        // HTMLではGETとPOSTしか選べないためJSの非同期処理で対応
-        document.body.addEventListener('click', async (event) => {
-            if (event.target.matches('.delete-btn')) {
-                fetchAndResponse(event);
-            }
-        });
-
-        document.body.addEventListener('change', async (event) => {
-            if (event.target.matches('.qty-select')) {
-                fetchAndResponse(event);
-            }
-        });
-
-        async function fetchAndResponse(event) {
-            const target = event.target;
-            // buttonから一番近い.cart-formを探す
-            const form = target.closest('.cart-form');
-            const janCd = form.querySelector('.jan-cd-input').value;
-            // 数量が必要なのは更新時だけ
-            let qty = 0;
-            if (target.matches('.qty-select')) {
-                qty = form.querySelector('.qty-select').value;
-            }
-            // ここでトークン取得
-            const token = document.querySelector('meta[name="csrf-token"]').content;
-            try {
-                let response = null;
-                if (target.matches('.qty-select')) {
-                    response = await fetch(`/cart/items/${janCd}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded',
-                            'X-CSRF-TOKEN': token   // ← CSRFトークンをヘッダーに追加
-                        },
-                        body: new URLSearchParams({ qty })
-                    });
-                } else {
-                    response = await fetch(`/cart/items/${janCd}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': token   // ← CSRFトークンをヘッダーに追加
-                        }
-                    });
-                }
-
-                if (response.ok) {
-                    const cartItemDtoList = await response.json();
-                    console.log(cartItemDtoList);
-                    renderCart(cartItemDtoList);
-                } else {
-                    alert(response.status + ": カート操作で問題が発生しました。在庫が既にない可能性があります。再度操作を試してください。");
-                }
-            } catch (error) {
-                console.error('更新エラー:', error);
-                alert('更新エラーが発生しました。');
-            }
-        }
-
-        function renderCart(cartItemDtoList) {
-            const cartContainer = document.querySelector("#cart-container");
-            cartContainer.innerHTML = "";
-            if (!cartItemDtoList || cartItemDtoList.length === 0) {
-                cartContainer.innerHTML = "<p>カートは空です。</p>";
-                return;
-            }
-
-            let total = 0;
-
-            cartItemDtoList.forEach(itemDto => {
-                const item = itemDto.Item;
-                const qty = itemDto.InCartQty;
-                const rowDiv = document.createElement("div");
-                rowDiv.classList.add("row", "m-1");
-
-                const leftDiv = document.createElement("div");
-                leftDiv.classList.add("col-md-6", "bg-light", "p-1");
-                leftDiv.innerHTML = `<img src="${item.FilePath}" class="w-75" />`;
-
-                const rightDiv = document.createElement("div");
-                rightDiv.classList.add("col-md-6", "bg-light", "text-center", "p-1");
-
-                const formHtml = document.createElement("div");
-                formHtml.innerHTML = `
-                    <h2>${item.ItemNm}</h2>
-                    <h9>JANコード：${item.JanCd}</h9>
-                    <hr class="m-4" />
-                    <p>${Number(item.Price).toLocaleString()} 円</p>
-                    <div class="row bottom-0">
-                        <form class="cart-form">
-                            <select name="qty" class="qty-select"></select>
-                            <input type="hidden" name="janCd" value="${item.JanCd}" class="jan-cd-input">
-                            <button type="button" class="btn btn-link delete-btn">削除</button>
-                        </form>
-                    </div>
-                `;
-                rightDiv.appendChild(formHtml);
-
-                const select = rightDiv.querySelector(".qty-select");
-                for (let i = 1; i <= item.Qty; i++) {
-                    const option = document.createElement("option");
-                    option.value = i;
-                    option.text = i;
-                    if (i === qty) option.selected = true;
-                    select.appendChild(option);
-                }
-
-                rowDiv.appendChild(leftDiv);
-                rowDiv.appendChild(rightDiv);
-                cartContainer.appendChild(rowDiv);
-
-                total += Number(item.Price) * qty;
+            // ページロード時に renderCart を実行
+            document.addEventListener("DOMContentLoaded", () => {
+                renderCart(initialCartData);
             });
 
-            const totalDiv = document.createElement("h3");
-            totalDiv.classList.add("col-md-12", "d-flex", "justify-content-end");
-            totalDiv.innerHTML = `小計：${total.toLocaleString()}`;
-            cartContainer.appendChild(totalDiv);
+            // HTMLではGETとPOSTしか選べないためJSの非同期処理で対応
+            document.body.addEventListener('click', async (event) => {
+                if (event.target.matches('.delete-btn')) {
+                    fetchAndResponse(event);
+                }
+            });
 
-            const registerDiv = document.createElement("div");
-            registerDiv.classList.add("text-center");
-            registerDiv.innerHTML = `<a href="../register" class="btn-lg btn-warning text-white text-decoration-none">レジへ</a>`;
-            cartContainer.appendChild(registerDiv);
-        }
-    </script>
-}
+            document.body.addEventListener('change', async (event) => {
+                if (event.target.matches('.qty-select')) {
+                    fetchAndResponse(event);
+                }
+            });
+
+            async function fetchAndResponse(event) {
+                const target = event.target;
+                // buttonから一番近い.cart-formを探す
+                const form = target.closest('.cart-form');
+                const janCd = form.querySelector('.jan-cd-input').value;
+                // 数量が必要なのは更新時だけ
+                let qty = 0;
+                if (target.matches('.qty-select')) {
+                    qty = form.querySelector('.qty-select').value;
+                }
+                // ここでトークン取得
+                const token = document.querySelector('meta[name="csrf-token"]').content;
+                try {
+                    let response = null;
+                    if (target.matches('.qty-select')) {
+                        response = await requestPut(janCd, qty);
+                    } else {
+                        response = await requestDelete(janCd);
+                    }
+
+                    if (response.ok) {
+                        const cartItemDtoList = await response.json();
+                        console.log(cartItemDtoList);
+                        renderCart(cartItemDtoList);
+                    } else {
+                        alert(response.status + ": カート操作で問題が発生しました。在庫が既にない可能性があります。再度操作を試してください。");
+                    }
+                } catch (error) {
+                    console.error('更新エラー:', error);
+                    alert('更新エラーが発生しました。');
+                }
+            }
+
+            /**
+             * 画像URLとして安全か（http/https、または相対パスのみ許可）を検証する
+             * param {string} url - 画像URL
+             * returns {boolean} - 安全なURLならtrue、そうでなければfalse
+             */
+            function isSafeImageUrl(url) {
+                try {
+                    const parsed = new URL(url, location.origin);
+                    return parsed.protocol === "http:" || parsed.protocol === "https:";
+                } catch {
+                    return false;
+                }
+            }
+
+            /***
+             * PUTリクエストを送信する関数
+             * param {string} janCd - 商品のJANコード
+             * param {number} qty - 更新する数量
+             * returns {Promise<Response>} - fetchのレスポンス
+             */
+            function requestPut(janCd, qty) {
+                const token = document.querySelector('meta[name="csrf-token"]').content;
+                return fetch(`/cart/items/${janCd}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRF-TOKEN': token
+                    },
+                    body: new URLSearchParams({ qty })
+                });
+            }
+
+            /**
+             * DELETEリクエストを送信する関数
+             * param {string} janCd - 商品のJANコード
+             * returns {Promise<Response>} - fetchのレスポンス
+             */
+            function requestDelete(janCd) {
+                const token = document.querySelector('meta[name="csrf-token"]').content;
+                return fetch(`/cart/items/${janCd}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': token
+                    }
+                });
+            }
+
+            /**
+             * カートの内容をレンダリングする関数
+             * param {Array} cartItemDtoList - カート内の商品情報のリスト
+             */
+            function renderCart(cartItemDtoList) {
+                const cartContainer = document.querySelector("#cart-container");
+                cartContainer.innerHTML = "";
+                if (!cartItemDtoList || cartItemDtoList.length === 0) {
+                    cartContainer.innerHTML = "<p>カートは空です。</p>";
+                    return;
+                }
+
+                let total = 0;
+
+                cartItemDtoList.forEach(itemDto => {
+                    const item = itemDto.Item;
+                    let qty = itemDto.InCartQty;
+
+                    const rowDiv = document.createElement("div");
+                    rowDiv.classList.add("row", "m-1");
+
+                    // ---- 左側：画像 ----
+                    const leftDiv = document.createElement("div");
+                    leftDiv.classList.add("col-md-6", "bg-light", "p-1");
+
+                    const img = document.createElement("img");
+                    img.className = "w-75";
+                    // URLのプロトコルを検証してからsrcに設定（javascript:等の危険なURLを排除）
+                    img.src = isSafeImageUrl(item.FilePath) ? item.FilePath : "/images/no-image.png";
+                    img.alt = item.ItemNm ?? "";
+                    leftDiv.appendChild(img);
+
+                    // ---- 右側：商品情報・数量選択・削除ボタン ----
+                    const rightDiv = document.createElement("div");
+                    rightDiv.classList.add("col-md-6", "bg-light", "text-center", "p-1");
+
+                    const h2 = document.createElement("h2");
+                    h2.textContent = item.ItemNm; // textContentなのでHTMLとして解釈されない（XSS対策）
+
+                    const janP = document.createElement("p");
+                    janP.className = "text-muted small";
+                    janP.textContent = `JANコード：${item.JanCd}`; // <h9>から<p>に修正
+
+                    const hr = document.createElement("hr");
+                    hr.className = "m-4";
+
+                    const priceP = document.createElement("p");
+                    priceP.textContent = `${Number(item.Price).toLocaleString()} 円`;
+
+                    const bottomRow = document.createElement("div");
+                    bottomRow.classList.add("row", "bottom-0");
+
+                    const form = document.createElement("form");
+                    form.classList.add("cart-form");
+
+                    const select = document.createElement("select");
+                    select.name = "qty";
+                    select.classList.add("qty-select");
+
+                    const hiddenInput = document.createElement("input");
+                    hiddenInput.type = "hidden";
+                    hiddenInput.name = "janCd";
+                    hiddenInput.value = item.JanCd;
+                    hiddenInput.classList.add("jan-cd-input");
+
+                    const deleteBtn = document.createElement("button");
+                    deleteBtn.type = "button";
+                    deleteBtn.classList.add("btn", "btn-link", "delete-btn");
+                    deleteBtn.textContent = "削除";
+
+                    form.append(select, hiddenInput, deleteBtn);
+                    bottomRow.appendChild(form);
+
+                    rightDiv.append(h2, janP, hr, priceP, bottomRow);
+                    if (item.Qty === 0) {
+                        alert(`在庫が不足しています。カート内の商品は削除されます。`);
+                        requestDelete(item.JanCd).then(response => {
+                            if (!response.ok) {
+                                 alert("在庫削除に失敗しました。再度操作を試してください。");
+                            }
+                        }).catch(error => {
+                            console.error('在庫削除エラー:', error);
+                            alert('在庫削除エラーが発生しました。');
+                        });
+                        return; // 在庫がない場合は数量選択肢を作らずに次のアイテムへ
+                    }
+                    else if (item.Qty < qty) {
+                        alert(`在庫が不足しています。カート内の数量を${item.Qty}に変更します。`);
+                        qty = item.Qty;
+                        // ここでサーバーにPUTリクエストを送信して数量を更新する
+                        requestPut(item.JanCd, qty).then(response => {
+                            if (!response.ok) {
+                                alert("在庫更新に失敗しました。再度操作を試してください。");
+                            }
+                        }).catch(error => {
+                            console.error('在庫更新エラー:', error);
+                            alert('在庫更新エラーが発生しました。');
+                        });
+                    }
+                    for (let i = 1; i <= item.Qty; i++) {
+                        const option = document.createElement("option");
+                        option.value = i;
+                        option.text = i;
+                        if (i === qty) option.selected = true;
+                        select.appendChild(option);
+                    }
+
+                    rowDiv.appendChild(leftDiv);
+                    rowDiv.appendChild(rightDiv);
+                    cartContainer.appendChild(rowDiv);
+
+                    total += Number(item.Price) * qty;
+                });
+
+                const totalDiv = document.createElement("h3");
+                totalDiv.classList.add("col-md-12", "d-flex", "justify-content-end");
+                totalDiv.textContent = `小計：${total.toLocaleString()}`;
+                cartContainer.appendChild(totalDiv);
+
+                const registerDiv = document.createElement("div");
+                registerDiv.classList.add("text-center");
+                const registerLink = document.createElement("a");
+                registerLink.href = "../register";
+                registerLink.classList.add("btn-lg", "btn-warning", "text-white", "text-decoration-none");
+                registerLink.textContent = "レジへ";
+                registerDiv.appendChild(registerLink);
+                cartContainer.appendChild(registerDiv);
+            }
+        </script>
+    }
