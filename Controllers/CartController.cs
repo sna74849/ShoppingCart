@@ -39,7 +39,7 @@ namespace ShoppingCart.Controllers
                 }
                 else
                 {
-                    cartItemVmList.Find(it => it.Item.JanCd == janCd)!.Item.Qty = qty;
+                    cartItemVmList.Find(it => it.Item.JanCd == janCd)!.InCartQty = qty;
                 }
                     
                 HttpContext.Session.SetObject<List<CartItemViewModel>>("cart", cartItemVmList);

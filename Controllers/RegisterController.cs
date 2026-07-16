@@ -27,7 +27,6 @@ namespace ShoppingCart.Controllers
                     ViewBag.Destinations = dbService.GetDestinationList(HttpContext.Session.GetString("customerId")!);
 
                     return View(cartItemDtoList);
-                    
                 }
             }
             catch (Exception)
