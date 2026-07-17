@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ShoppingCart.Models.Dtos;
 using ShoppingCart.Models.Exceptions;
 using ShoppingCart.Models.Services;
 using ShoppingCart.Models.ViewModels;
@@ -14,7 +15,14 @@ namespace ShoppingCart.Controllers
         {
             try
             {
-                return View(HttpContext.Session.GetObject<List<CartItemViewModel>>("cart"));
+                var cartItemVmList
+                    = HttpContext.Session.GetObject<List<CartItemViewModel>>("cart") ?? [];
+                var itemSalseStockDtoList = new List<ItemSalesStockDto>();
+                cartItemVmList.ForEach(it => itemSalseStockDtoList.Add(dbService.GetItem(it.JanCd)));
+
+                ViewBag.Items = itemSalseStockDtoList;
+
+                return View(cartItemVmList);
             }
             catch (Exception)
             {
@@ -22,24 +30,23 @@ namespace ShoppingCart.Controllers
             }
         }
         [HttpPost("/cart/items")]
-        public IActionResult Create([FromForm] string janCd, [FromForm] int qty)
+        public IActionResult Create([Bind] CartItemViewModel cartItemVm)
         {
             try
             {
                 var cartItemVmList
                         = HttpContext.Session.GetObject<List<CartItemViewModel>>("cart") ?? [];
-                var cartItemVm = new CartItemViewModel
+                var itemSalseStockDto = dbService.GetItem(cartItemVm.JanCd);
+    
+                if (cartItemVmList.Find(it => it.JanCd == cartItemVm.JanCd) == null)
                 {
-                    Item = dbService.GetItem(janCd)
-                };
-                if (cartItemVmList.Find(it => it.Item.JanCd == janCd) == null)
-                {
-                    cartItemVm.InCartQty = qty;
+                    // カートに入っていない場合は新規追加する
                     cartItemVmList.Add(cartItemVm);
                 }
                 else
                 {
-                    cartItemVmList.Find(it => it.Item.JanCd == janCd)!.InCartQty = qty;
+                    // すでにカートに入っている場合は数量を更新する(在庫数との整合性はView側でとる)
+                    cartItemVmList.Find(it => it.JanCd == cartItemVm.JanCd)!.Qty = cartItemVm.Qty;
                 }
                     
                 HttpContext.Session.SetObject<List<CartItemViewModel>>("cart", cartItemVmList);
@@ -66,7 +73,7 @@ namespace ShoppingCart.Controllers
                 var cartItemVmList
                     = HttpContext.Session.GetObject<List<CartItemViewModel>>("cart") ?? throw new Exception();
 
-                cartItemVmList.Find(it => it.Item.JanCd == janCd)!.InCartQty = qty;
+                cartItemVmList.Find(it => it.JanCd == janCd)!.Qty = qty;
 
                 HttpContext.Session.SetObject<List<CartItemViewModel>>("cart", cartItemVmList);
 
@@ -86,7 +93,7 @@ namespace ShoppingCart.Controllers
                 var cartItemVmList
                     = HttpContext.Session.GetObject<List<CartItemViewModel>>("cart") ?? throw new Exception();
 
-                cartItemVmList.Remove(cartItemVmList.Find(it => it.Item.JanCd == janCd) ?? throw new Exception());
+                cartItemVmList.Remove(cartItemVmList.Find(it => it.JanCd == janCd) ?? throw new Exception());
 
                 HttpContext.Session.SetObject<List<CartItemViewModel>>("cart", cartItemVmList);
 

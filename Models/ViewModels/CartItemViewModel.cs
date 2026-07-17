@@ -8,12 +8,13 @@ namespace ShoppingCart.Models.ViewModels
     public class CartItemViewModel
     {
         /// <summary>
-        /// 商品情報と在庫情報をまとめたDTO。
+        /// JANコード
         /// </summary>
-        public ItemSalesStockDto Item { get; set; } = default!;
+        public string JanCd { get; set; } = default!;
+
         /// <summary>
         /// カートに入っている数量
         /// </summary>
-        public int InCartQty { get; set; } = default!;
+        public int Qty { get; set; } = default!;
     }
 }

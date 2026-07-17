@@ -16,12 +16,14 @@
     </div>
     @section Scripts {
         <script>
+            // サーバー側の ViewBag.Items を JS に渡す
+            const items = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.Items));
             // サーバー側の Model を JS に渡す
-            const initialCartData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
+            const cart = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model));
 
             // ページロード時に renderCart を実行
             document.addEventListener("DOMContentLoaded", () => {
-                renderCart(initialCartData);
+                renderCart(cart);
             });
 
             // HTMLではGETとPOSTしか選べないためJSの非同期処理で対応
@@ -58,9 +60,9 @@
                     }
 
                     if (response.ok) {
-                        const cartItemDtoList = await response.json();
-                        console.log(cartItemDtoList);
-                        renderCart(cartItemDtoList);
+                        const cart = await response.json();
+                        console.log(cart);
+                        renderCart(cart);
                     } else {
                         alert(response.status + ": カート操作で問題が発生しました。在庫が既にない可能性があります。再度操作を試してください。");
                     }
@@ -119,21 +121,32 @@
 
             /**
              * カートの内容をレンダリングする関数
-             * param {Array} cartItemDtoList - カート内の商品情報のリスト
+             * param {Array} cart - カート情報のリスト
              */
-            function renderCart(cartItemDtoList) {
+            function renderCart(cart) {
                 const cartContainer = document.querySelector("#cart-container");
                 cartContainer.innerHTML = "";
-                if (!cartItemDtoList || cartItemDtoList.length === 0) {
+                if (!cart || cart.length === 0) {
                     cartContainer.innerHTML = "<p>カートは空です。</p>";
                     return;
                 }
 
+                // cart(カート情報) と item(商品・在庫情報) を明示的に区別してマージ
+                cartItems = cart.map(cartItem => {
+                    const item = items.find(v => v.JanCd === cartItem.JanCd);
+                    return {
+                        JanCd: item.JanCd,
+                        FilePath: item?.FilePath,
+                        ItemNm: item?.ItemNm,
+                        Price: item?.Price,
+                        StockQty: item?.Qty,   // 在庫数（マスタ由来）
+                        CartQty: cartItem.Qty        // カート内数量（レスポンス由来）
+                    };
+                });
+
                 let total = 0;
 
-                cartItemDtoList.forEach(itemDto => {
-                    const item = itemDto.Item;
-                    let qty = itemDto.InCartQty;
+                cartItems.forEach(item => {
 
                     const rowDiv = document.createElement("div");
                     rowDiv.classList.add("row", "m-1");
@@ -191,22 +204,24 @@
                     bottomRow.appendChild(form);
 
                     rightDiv.append(h2, janP, hr, priceP, bottomRow);
-                    if (item.Qty === 0) {
+
+                    let qty = item.CartQty ?? 0;
+
+                    if (item.StockQty === 0) {
                         alert(`在庫が不足しています。カート内の商品は削除されます。`);
                         requestDelete(item.JanCd).then(response => {
                             if (!response.ok) {
-                                 alert("在庫削除に失敗しました。再度操作を試してください。");
+                                alert("在庫削除に失敗しました。再度操作を試してください。");
                             }
                         }).catch(error => {
                             console.error('在庫削除エラー:', error);
                             alert('在庫削除エラーが発生しました。');
                         });
-                        return; // 在庫がない場合は数量選択肢を作らずに次のアイテムへ
+                        return;
                     }
-                    else if (item.Qty < qty) {
-                        alert(`在庫が不足しています。カート内の数量を${item.Qty}に変更します。`);
-                        qty = item.Qty;
-                        // ここでサーバーにPUTリクエストを送信して数量を更新する
+                    else if (item.StockQty < qty) {
+                        alert(`在庫が不足しています。カート内の数量を${item.StockQty}に変更します。`);
+                        qty = item.StockQty;
                         requestPut(item.JanCd, qty).then(response => {
                             if (!response.ok) {
                                 alert("在庫更新に失敗しました。再度操作を試してください。");
@@ -216,7 +231,7 @@
                             alert('在庫更新エラーが発生しました。');
                         });
                     }
-                    for (let i = 1; i <= item.Qty; i++) {
+                    for (let i = 1; i <= item.StockQty; i++) {
                         const option = document.createElement("option");
                         option.value = i;
                         option.text = i;

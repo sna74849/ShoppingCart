@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ShoppingCart.Models.Dtos;
 using ShoppingCart.Models.Services;
 using ShoppingCart.Models.ViewModels;
 
@@ -9,9 +10,9 @@ namespace ShoppingCart.Controllers
         [HttpGet("/register")]
         public IActionResult Index()
         {
-            var cartItemDtoList
+            var cartItemVmList
                 = HttpContext.Session.GetObject<List<CartItemViewModel>>("cart") ?? [];
-            if (cartItemDtoList.Count == 0)
+            if (cartItemVmList.Count == 0)
             {
                 return View("../Cart/Index");
             }
@@ -24,9 +25,11 @@ namespace ShoppingCart.Controllers
                 } 
                 else
                 {
+                    ViewBag.Items = new List<ItemSalesStockDto>();
+                    cartItemVmList.ForEach(it => ViewBag.Items.Add(dbService.GetItem(it.JanCd)));
                     ViewBag.Destinations = dbService.GetDestinationList(HttpContext.Session.GetString("customerId")!);
 
-                    return View(cartItemDtoList);
+                    return View(cartItemVmList);
                 }
             }
             catch (Exception)

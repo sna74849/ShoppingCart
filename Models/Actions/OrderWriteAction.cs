@@ -115,9 +115,9 @@ namespace ShoppingCart.Models.Actions
 
             foreach (CartItemViewModel cartItemDto in cartItemVmList!)
             {
-                var stockEtyList = _stockReadDao.Find(cartItemDto.Item.JanCd, cartItemDto.InCartQty);
+                var stockEtyList = _stockReadDao.Find(cartItemDto.JanCd, cartItemDto.Qty);
 
-                if (stockEtyList.Count < cartItemDto.InCartQty)
+                if (stockEtyList.Count < cartItemDto.Qty)
                 {
                     throw new OrderException("在庫が不足しています。");
                 }
@@ -133,7 +133,7 @@ namespace ShoppingCart.Models.Actions
                     _orderDetailWriteDao.Insert(new OrderDetailEntity
                     {
                         OrderCd = orderCd,
-                        SalesCd = _salesReadDao.Fetch(cartItemDto.Item.JanCd)!.SalesCd,
+                        SalesCd = _salesReadDao.Fetch(cartItemDto.JanCd)!.SalesCd,
                         SeqNo = seqNo++,
                         ScheduledDeliveryAt
                             = orderWriteVm.OrderScheduledDeliveryVmList[itemCnt].ScheduledDeliveryIs
