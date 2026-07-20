@@ -111,8 +111,6 @@ namespace ShoppingCart.Models.Actions
                 DestinationNo = orderWriteVm.DestinationNo
             });
 
-            int itemCnt = 0;
-
             foreach (CartItemViewModel cartItemDto in cartItemVmList!)
             {
                 var stockEtyList = _stockReadDao.Find(cartItemDto.JanCd, cartItemDto.Qty);
@@ -127,7 +125,7 @@ namespace ShoppingCart.Models.Actions
                 }
 
                 int seqNo = 1;
-
+                int itemCnt = 0;
                 foreach (var stockEty in stockEtyList)
                 {
                     _orderDetailWriteDao.Insert(new OrderDetailEntity

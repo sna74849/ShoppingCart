@@ -4,6 +4,7 @@ namespace ShoppingCart.Models.DatabaseFrameworks
 {
     /// <summary>
     /// DB処理を提供するフレームワーククラス。
+    /// 汎用クラスなので原則、このクラスのコードは変更しないこと。
     /// </summary>
     public class DatabaseFramework(ConnectionManager connectionManager)
     {
@@ -59,7 +60,7 @@ namespace ShoppingCart.Models.DatabaseFrameworks
                     var logger = new ExceptionLogger("logs");
                     logger.LogException(ex);
                     transaction.Rollback();
-                    throw new Exception();
+                    throw new Exception(ex.Message,ex);
                 }
             }
             catch (InvalidOperationException ex)
@@ -70,7 +71,7 @@ namespace ShoppingCart.Models.DatabaseFrameworks
             }
             catch (Exception ex)
             {
-                throw new DatabaseServiceException("DB書き込み処理でエラーが発生しました。", ex);
+                throw new DatabaseServiceException("DB書き込み処理でエラーが発生しました。", ex.InnerException ?? ex);
             }
         }
     }

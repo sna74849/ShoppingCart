@@ -68,7 +68,6 @@ namespace ShoppingCart.Models.Services
                 orderDetailDao,
                 stockDao,
                 salesDao);
-
             return dbFramework.Execute(action)!;
         }
 

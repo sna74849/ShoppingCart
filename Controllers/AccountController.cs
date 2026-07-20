@@ -42,7 +42,7 @@ namespace ShoppingCart.Controllers
             }
             catch (Exception)
             {
-                return RedirectToAction("Error","Home");// PRG法で二重送信を防ぐ
+                return View("Error");
             }
         }
     }

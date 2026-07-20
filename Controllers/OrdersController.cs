@@ -24,8 +24,14 @@ namespace ShoppingCart.Controllers
         {
             var cartItemDtoList
                 = HttpContext.Session.GetObject<List<CartItemViewModel>>("cart") ?? [];
-            if (cartItemDtoList.Count == 0) return View("../Cart/Index");
-            
+
+            if (cartItemDtoList.Count == 0)
+            {
+                TempData["ToastMessage"] = "カートは既に空です。";
+                TempData["ToastType"] = "warning";
+                return RedirectToAction("Index", "Cart"); // カートが空の場合はカート画面を再読み込み
+            }
+
             try
             {
                 if (string.IsNullOrEmpty(HttpContext.Session.GetString("customerId")))
@@ -34,18 +40,18 @@ namespace ShoppingCart.Controllers
                     return RedirectToAction("Login", "Account");
                 }
 
+                var orderCd = service.CreateOrder(orderWriteVm, cartItemDtoList);
                 HttpContext.Session.Remove("cart");
                 HttpContext.Session.Remove("count");
-                var orderCd = service.CreateOrder(orderWriteVm, cartItemDtoList);
                 return LocalRedirect($"/orders/{orderCd}");// PRG法で二重送信を防ぐ
             }
-            catch (OrderException e)
+            catch (Exception e)
             {
-                ViewData["message"] = e.Message;
-                return View("Error");
-            }
-            catch (Exception)
-            {
+                if (e.InnerException is OrderException orderEx)
+                {
+                    ViewData["message"] = orderEx.Message;
+                    return View("NoStockError");
+                }
                 return View("Error");
             }
         }

@@ -14,7 +14,9 @@ namespace ShoppingCart.Controllers
                 = HttpContext.Session.GetObject<List<CartItemViewModel>>("cart") ?? [];
             if (cartItemVmList.Count == 0)
             {
-                return View("../Cart/Index");
+                TempData["ToastMessage"] = "カートは既に空です。";
+                TempData["ToastType"] = "warning";
+                return RedirectToAction("Index", "Cart"); // カートが空の場合はカート画面にリダイレクト
             }
             try
             {
@@ -25,8 +27,15 @@ namespace ShoppingCart.Controllers
                 } 
                 else
                 {
-                    ViewBag.Items = new List<ItemSalesStockDto>();
-                    cartItemVmList.ForEach(it => ViewBag.Items.Add(dbService.GetItem(it.JanCd)));
+                    if (dbService.TryGetItems(cartItemVmList, out List<ItemSalesStockDto> itemSalesStockDtoList))
+                    {
+                        ViewBag.Items = itemSalesStockDtoList;
+                    }
+                    else 
+                    {
+                        return RedirectToAction("Index", "Cart"); // カート内の商品が存在しない場合はカート画面にリダイレクト
+                    }
+                    
                     ViewBag.Destinations = dbService.GetDestinationList(HttpContext.Session.GetString("customerId")!);
 
                     return View(cartItemVmList);

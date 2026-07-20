@@ -65,15 +65,15 @@ namespace ShoppingCart.Models.Daos
             {
                 using var reader = cmd.ExecuteReader();
                 {
-                    List<StockEntity> stockNoList = new();
+                    List<StockEntity> stockEtyList = new();
                     while (reader.Read())
                     {
-                        stockNoList.Add(new StockEntity
+                        stockEtyList.Add(new StockEntity
                         {
                             StockNo = reader.GetNonNullInt("stock_no"),
                         });
                     }
-                    return stockNoList;
+                    return stockEtyList;
                 }
             }
         }
